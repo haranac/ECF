@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   Lock,
   Mail,
@@ -8,97 +9,265 @@ import {
   EyeOff,
 } from "lucide-react";
 
+import { supabase } from "../lib/supabase";
+
+
 function Login({ onLogin, onRegister }) {
+  // =====================================================
+  // ESTADOS
+  // =====================================================
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-  // Actualizar campos del formulario
+  const [error, setError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+
+  // =====================================================
+  // ACTUALIZAR FORMULARIO
+  // =====================================================
+
   const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.value,
     });
 
-    // Limpiar error cuando el usuario vuelva a escribir
     setError("");
   };
 
-  // Inicio de sesión
+
+  // =====================================================
+  // INICIAR SESIÓN
+  // =====================================================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar campos vacíos
-    if (!form.email || !form.password) {
-      setError("Ingresa tu correo y contraseña.");
+
+    // -------------------------------------------------
+    // VALIDACIÓN
+    // -------------------------------------------------
+
+    if (
+      !form.email.trim() ||
+      !form.password
+    ) {
+      setError(
+        "Ingresa tu correo y contraseña."
+      );
+
       return;
     }
+
 
     setLoading(true);
     setError("");
 
+
     try {
-      // Obtener usuarios registrados
-      const users =
-        JSON.parse(
-          localStorage.getItem("canWashUsers")
-        ) || [];
+      // =================================================
+      // 1. AUTENTICAR CON SUPABASE
+      // =================================================
 
-      // Buscar usuario
-      const registeredUser = users.find(
-        (user) =>
-          user.email.toLowerCase() ===
-            form.email.toLowerCase() &&
-          user.password === form.password
-      );
+      const {
+        data,
+        error: loginError,
+      } =
+        await supabase.auth
+          .signInWithPassword({
+            email:
+              form.email
+                .trim()
+                .toLowerCase(),
 
-      // Usuario no encontrado
-      if (!registeredUser) {
-        setError(
-          "Correo o contraseña incorrectos."
+            password:
+              form.password,
+          });
+
+
+      // =================================================
+      // 2. ERROR DE AUTENTICACIÓN
+      // =================================================
+
+      if (loginError) {
+        console.error(
+          "Error de Supabase:",
+          loginError
         );
+
+
+        if (
+          loginError.message ===
+          "Invalid login credentials"
+        ) {
+          setError(
+            "Correo o contraseña incorrectos."
+          );
+
+        } else if (
+          loginError.message ===
+          "Email not confirmed"
+        ) {
+          setError(
+            "Debes confirmar tu correo electrónico antes de iniciar sesión."
+          );
+
+        } else {
+          setError(
+            loginError.message
+          );
+        }
+
         return;
       }
 
-      // Verificar si la cuenta está activa
-      if (registeredUser.activo === false) {
+
+      // =================================================
+      // 3. VERIFICAR USUARIO
+      // =================================================
+
+      if (!data?.user) {
+        setError(
+          "No fue posible obtener la información del usuario."
+        );
+
+        return;
+      }
+
+
+      // =================================================
+      // 4. CONSULTAR PERFIL EN PUBLIC.USUARIOS
+      // =================================================
+
+      const {
+        data: profile,
+        error: profileError,
+      } =
+        await supabase
+          .from("usuarios")
+          .select(`
+            id_usuario,
+            nombre,
+            rol,
+            activo
+          `)
+          .eq(
+            "id_usuario",
+            data.user.id
+          )
+          .single();
+
+
+      // =================================================
+      // 5. ERROR AL OBTENER PERFIL
+      // =================================================
+
+      if (profileError) {
+        console.error(
+          "Error obteniendo perfil:",
+          profileError
+        );
+
+        await supabase.auth.signOut();
+
+        setError(
+          "Tu cuenta existe, pero no fue posible cargar tu perfil."
+        );
+
+        return;
+      }
+
+
+      // =================================================
+      // 6. CUENTA DESACTIVADA
+      // =================================================
+
+      if (
+        profile.activo === false
+      ) {
+        await supabase.auth.signOut();
+
         setError(
           "Esta cuenta se encuentra desactivada."
         );
+
         return;
       }
 
-      // Datos que guardaremos en la sesión
-      // No guardamos la contraseña
-      const user = {
-        id_usuario: registeredUser.id_usuario,
-        nombre: registeredUser.nombre,
-        email: registeredUser.email,
-        rol: registeredUser.rol,
+
+      // =================================================
+      // 7. VALIDAR ROL
+      // =================================================
+
+      const validRoles = [
+        "ADMIN",
+        "EMPLEADO",
+        "CLIENTE",
+      ];
+
+
+      if (
+        !validRoles.includes(
+          profile.rol
+        )
+      ) {
+        await supabase.auth.signOut();
+
+        setError(
+          "Tu cuenta no tiene un rol válido."
+        );
+
+        return;
+      }
+
+
+      // =================================================
+      // 8. CONSTRUIR USUARIO
+      // =================================================
+
+      const userData = {
+        id_usuario:
+          profile.id_usuario,
+
+        nombre:
+          profile.nombre,
+
+        email:
+          data.user.email,
+
+        rol:
+          profile.rol,
+
+        activo:
+          profile.activo,
       };
 
-      // Guardar sesión temporal
-      localStorage.setItem(
-        "canWashUser",
-        JSON.stringify(user)
-      );
 
-      // Informar a App.jsx que el login fue correcto
-      onLogin(user);
+      // =================================================
+      // 9. INFORMAR A APP.JSX
+      // =================================================
+
+      await onLogin(userData);
 
     } catch (error) {
       console.error(
-        "Error al iniciar sesión:",
+        "Error inesperado al iniciar sesión:",
         error
       );
 
       setError(
-        "Ocurrió un error al iniciar sesión."
+        "Ocurrió un error inesperado al iniciar sesión."
       );
 
     } finally {
@@ -106,18 +275,25 @@ function Login({ onLogin, onRegister }) {
     }
   };
 
+
+  // =====================================================
+  // INTERFAZ
+  // =====================================================
+
   return (
     <div className="login-page">
 
-      {/* =========================
+      {/* =================================================
           LADO IZQUIERDO
-      ========================== */}
+      ================================================== */}
 
       <section className="login-decoration">
 
         <PawPrint size={75} />
 
-        <h1>Can Wash</h1>
+        <h1>
+          Can Wash
+        </h1>
 
         <p>
           ESTÉTICA CANINA Y FELINA
@@ -126,87 +302,129 @@ function Login({ onLogin, onRegister }) {
       </section>
 
 
-      {/* =========================
-          FORMULARIO LOGIN
-      ========================== */}
+      {/* =================================================
+          LOGIN
+      ================================================== */}
 
       <section className="login-card">
 
         <div className="brand-icon">
+
           <PawPrint size={38} />
+
         </div>
+
 
         <h2>
           Bienvenido
         </h2>
 
+
         <p className="subtitle">
-          Inicia sesión para acceder al panel
-          administrativo de Can Wash.
+          Inicia sesión para acceder a
+          tu cuenta de Can Wash.
         </p>
 
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+        >
 
-          {/* =====================
+          {/* =============================================
               CORREO
-          ====================== */}
+          ============================================== */}
 
           <label htmlFor="email">
             Correo electrónico
           </label>
 
+
           <div className="input-container">
 
             <Mail size={20} />
+
 
             <input
               id="email"
               name="email"
               type="email"
               placeholder="correo@ejemplo.com"
-              value={form.email}
-              onChange={handleChange}
+
+              value={
+                form.email
+              }
+
+              onChange={
+                handleChange
+              }
+
               autoComplete="email"
+
+              disabled={
+                loading
+              }
             />
 
           </div>
 
 
-          {/* =====================
+          {/* =============================================
               CONTRASEÑA
-          ====================== */}
+          ============================================== */}
 
           <label htmlFor="password">
             Contraseña
           </label>
 
+
           <div className="input-container">
 
             <Lock size={20} />
 
+
             <input
               id="password"
               name="password"
+
               type={
                 showPassword
                   ? "text"
                   : "password"
               }
+
               placeholder="Ingresa tu contraseña"
-              value={form.password}
-              onChange={handleChange}
+
+              value={
+                form.password
+              }
+
+              onChange={
+                handleChange
+              }
+
               autoComplete="current-password"
+
+              disabled={
+                loading
+              }
             />
+
 
             <button
               type="button"
+
               className="password-button"
+
               onClick={() =>
                 setShowPassword(
                   !showPassword
                 )
               }
+
+              disabled={
+                loading
+              }
+
               aria-label={
                 showPassword
                   ? "Ocultar contraseña"
@@ -225,31 +443,38 @@ function Login({ onLogin, onRegister }) {
           </div>
 
 
-          {/* =====================
-              MENSAJE DE ERROR
-          ====================== */}
+          {/* =============================================
+              ERROR
+          ============================================== */}
 
           {error && (
             <div className="login-error">
+
               {error}
+
             </div>
           )}
 
 
-          {/* =====================
-              BOTÓN LOGIN
-          ====================== */}
+          {/* =============================================
+              INICIAR SESIÓN
+          ============================================== */}
 
           <button
             type="submit"
+
             className="primary-button"
-            disabled={loading}
+
+            disabled={
+              loading
+            }
           >
 
             {loading
               ? "Iniciando sesión..."
               : "Iniciar sesión"
             }
+
 
             {!loading && (
               <LogIn size={19} />
@@ -258,9 +483,9 @@ function Login({ onLogin, onRegister }) {
           </button>
 
 
-          {/* =====================
-              CREAR CUENTA
-          ====================== */}
+          {/* =============================================
+              REGISTRO
+          ============================================== */}
 
           <div className="register-link">
 
@@ -268,9 +493,17 @@ function Login({ onLogin, onRegister }) {
               ¿No tienes una cuenta?
             </span>
 
+
             <button
               type="button"
-              onClick={onRegister}
+
+              onClick={
+                onRegister
+              }
+
+              disabled={
+                loading
+              }
             >
               Crear cuenta
             </button>
@@ -284,5 +517,6 @@ function Login({ onLogin, onRegister }) {
     </div>
   );
 }
+
 
 export default Login;
