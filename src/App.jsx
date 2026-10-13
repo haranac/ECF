@@ -6,110 +6,103 @@ import Register from "./components/register";
 import EmployeeDashboard from "./components/employeeDashboard";
 import ClientDashboard from "./components/clientDashboard";
 
-import RegisterClient from "./components/registerClient";
-
 import { supabase } from "./lib/supabase";
 
 import "./styles.css";
 
 
 function App() {
-  // =====================================================
-  // ESTADOS
-  // =====================================================
-
   const [user, setUser] = useState(null);
 
-  const [page, setPage] = useState("login");
+  const [page, setPage] =
+    useState("login");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [authError, setAuthError] = useState("");
+  const [authError, setAuthError] =
+    useState("");
 
 
   // =====================================================
-  // OBTENER PERFIL DESDE PUBLIC.USUARIOS
+  // OBTENER PERFIL DEL USUARIO
   // =====================================================
 
-  const getUserProfile = async (supabaseUser) => {
+  const getUserProfile = async (
+    supabaseUser
+  ) => {
     if (!supabaseUser) {
       return null;
     }
 
-    try {
-      const {
-        data: profile,
-        error,
-      } = await supabase
-        .from("usuarios")
-        .select(`
-          id_usuario,
-          nombre,
-          rol,
-          activo
-        `)
-        .eq(
-          "id_usuario",
-          supabaseUser.id
-        )
-        .single();
+    const {
+      data: profile,
+      error,
+    } = await supabase
+      .from("usuarios")
+      .select(`
+        id_usuario,
+        nombre,
+        rol,
+        activo
+      `)
+      .eq(
+        "id_usuario",
+        supabaseUser.id
+      )
+      .maybeSingle();
 
 
-      if (error) {
-        console.error(
-          "Error obteniendo perfil:",
-          error
-        );
-
-        throw error;
-      }
-
-
-      // Usuario desactivado
-      if (profile.activo === false) {
-        await supabase.auth.signOut();
-
-        throw new Error(
-          "Esta cuenta se encuentra desactivada."
-        );
-      }
-
-
-      // Construimos el usuario que utilizará React
-      return {
-        id_usuario:
-          profile.id_usuario,
-
-        nombre:
-          profile.nombre,
-
-        email:
-          supabaseUser.email,
-
-        rol:
-          profile.rol,
-
-        activo:
-          profile.activo,
-      };
-
-    } catch (error) {
+    if (error) {
       console.error(
-        "Error cargando usuario:",
+        "Error consultando perfil:",
         error
       );
 
       throw error;
     }
+
+
+    if (!profile) {
+      throw new Error(
+        "No existe un perfil de Can Wash asociado a esta cuenta."
+      );
+    }
+
+
+    if (profile.activo === false) {
+      throw new Error(
+        "Esta cuenta se encuentra desactivada."
+      );
+    }
+
+
+    return {
+      id_usuario:
+        profile.id_usuario,
+
+      nombre:
+        profile.nombre,
+
+      email:
+        supabaseUser.email,
+
+      rol:
+        profile.rol,
+
+      activo:
+        profile.activo,
+    };
   };
 
 
   // =====================================================
-  // CARGAR SESIÓN INICIAL
+  // RECUPERAR SESIÓN
   // =====================================================
 
   useEffect(() => {
     let mounted = true;
+
 
     const loadSession = async () => {
       try {
@@ -117,14 +110,14 @@ function App() {
         setAuthError("");
 
 
-        // Obtener sesión actual
         const {
           data: {
             session,
           },
           error,
         } =
-          await supabase.auth.getSession();
+          await supabase.auth
+            .getSession();
 
 
         if (error) {
@@ -132,7 +125,6 @@ function App() {
         }
 
 
-        // No existe sesión
         if (!session?.user) {
           if (mounted) {
             setUser(null);
@@ -143,7 +135,6 @@ function App() {
         }
 
 
-        // Buscar perfil en public.usuarios
         const profile =
           await getUserProfile(
             session.user
@@ -164,7 +155,6 @@ function App() {
 
         if (mounted) {
           setUser(null);
-
           setPage("login");
 
           setAuthError(
@@ -185,7 +175,7 @@ function App() {
 
 
     // =================================================
-    // ESCUCHAR CAMBIOS DE SUPABASE AUTH
+    // CAMBIOS DE AUTENTICACIÓN
     // =================================================
 
     const {
@@ -193,74 +183,68 @@ function App() {
         subscription,
       },
     } =
-      supabase.auth.onAuthStateChange(
-        async (
-          event,
-          session
-        ) => {
-          // ---------------------------------------------
-          // CERRAR SESIÓN
-          // ---------------------------------------------
+      supabase.auth
+        .onAuthStateChange(
+          async (
+            event,
+            session
+          ) => {
 
-          if (event === "SIGNED_OUT") {
-            if (mounted) {
-              setUser(null);
-              setPage("login");
-              setLoading(false);
-            }
-
-            return;
-          }
-
-
-          // ---------------------------------------------
-          // SESIÓN ACTIVA
-          // ---------------------------------------------
-
-          if (session?.user) {
-            try {
-              const profile =
-                await getUserProfile(
-                  session.user
-                );
-
-
-              if (mounted) {
-                setUser(profile);
-
-                setPage(
-                  "dashboard"
-                );
-
-                setAuthError("");
-              }
-
-            } catch (error) {
-              console.error(
-                "Error actualizando sesión:",
-                error
-              );
-
-
+            // CERRÓ SESIÓN
+            if (
+              event === "SIGNED_OUT"
+            ) {
               if (mounted) {
                 setUser(null);
-
                 setPage("login");
+                setLoading(false);
+              }
 
-                setAuthError(
-                  error.message ||
-                  "No fue posible cargar el usuario."
+              return;
+            }
+
+
+            // SESIÓN ACTIVA
+            if (session?.user) {
+              try {
+                const profile =
+                  await getUserProfile(
+                    session.user
+                  );
+
+
+                if (mounted) {
+                  setUser(profile);
+
+                  setPage(
+                    "dashboard"
+                  );
+
+                  setAuthError("");
+                }
+
+              } catch (error) {
+                console.error(
+                  "Error cargando usuario:",
+                  error
                 );
+
+
+                if (mounted) {
+                  setUser(null);
+
+                  setPage("login");
+
+                  setAuthError(
+                    error.message ||
+                    "No fue posible cargar el usuario."
+                  );
+                }
               }
             }
           }
-        }
-      );
+        );
 
-
-    // =================================================
-    // CLEANUP
-    // =================================================
 
     return () => {
       mounted = false;
@@ -281,16 +265,14 @@ function App() {
       setAuthError("");
 
 
-      // Obtenemos el usuario autenticado directamente
-      // desde Supabase.
-
       const {
         data: {
           user: supabaseUser,
         },
         error,
       } =
-        await supabase.auth.getUser();
+        await supabase.auth
+          .getUser();
 
 
       if (error) {
@@ -305,7 +287,6 @@ function App() {
       }
 
 
-      // Obtener perfil y rol real
       const profile =
         await getUserProfile(
           supabaseUser
@@ -344,7 +325,8 @@ function App() {
   const handleLogout = async () => {
     try {
       const { error } =
-        await supabase.auth.signOut();
+        await supabase.auth
+          .signOut();
 
 
       if (error) {
@@ -366,7 +348,7 @@ function App() {
 
 
   // =====================================================
-  // PANTALLA DE CARGA
+  // CARGANDO
   // =====================================================
 
   if (loading) {
@@ -381,11 +363,9 @@ function App() {
           🐾
         </div>
 
-
         <h2>
           Cargando Can Wash...
         </h2>
-
 
         <p>
           Preparando tu cuenta.
@@ -397,18 +377,19 @@ function App() {
 
 
   // =====================================================
-  // USUARIO NO AUTENTICADO
+  // NO AUTENTICADO
   // =====================================================
 
   if (!user) {
 
-    // -------------------------------------------------
     // REGISTRO
-    // -------------------------------------------------
 
-    if (page === "registerUser") {
+    if (
+      page === "registerUser"
+    ) {
       return (
         <Register
+
           onRegister={() =>
             setPage("login")
           }
@@ -416,17 +397,17 @@ function App() {
           onBack={() =>
             setPage("login")
           }
+
         />
       );
     }
 
 
-    // -------------------------------------------------
     // LOGIN
-    // -------------------------------------------------
 
     return (
       <>
+
         {authError && (
           <div
             style={{
@@ -438,12 +419,14 @@ function App() {
               zIndex: 9999,
               padding:
                 "12px 18px",
-              borderRadius: "10px",
+              borderRadius:
+                "10px",
               background:
                 "#f8e5e5",
               color:
                 "#b75c5c",
-              fontSize: "13px",
+              fontSize:
+                "13px",
             }}
           >
             {authError}
@@ -452,6 +435,7 @@ function App() {
 
 
         <Login
+
           onLogin={
             handleLogin
           }
@@ -461,7 +445,9 @@ function App() {
               "registerUser"
             )
           }
+
         />
+
       </>
     );
   }
@@ -476,11 +462,13 @@ function App() {
   ) {
     return (
       <ClientDashboard
+
         user={user}
 
         onLogout={
           handleLogout
         }
+
       />
     );
   }
@@ -495,66 +483,37 @@ function App() {
   ) {
     return (
       <EmployeeDashboard
+
         user={user}
 
         onLogout={
           handleLogout
         }
+
       />
     );
   }
 
 
   // =====================================================
-  // ADMINISTRADOR
+  // ADMIN
+  //
+  // TEMPORAL:
+  // mientras no exista adminDashboard.jsx
   // =====================================================
 
   if (
     user.rol === "ADMIN"
   ) {
-
-    // -------------------------------------------------
-    // ADMIN - REGISTRAR CLIENTE
-    // -------------------------------------------------
-
-    if (
-      page === "registerClient"
-    ) {
-      return (
-        <RegisterClient
-          onBack={() =>
-            setPage(
-              "dashboard"
-            )
-          }
-
-          onSaved={() =>
-            setPage(
-              "dashboard"
-            )
-          }
-        />
-      );
-    }
-
-
-    // -------------------------------------------------
-    // ADMIN DASHBOARD
-    // -------------------------------------------------
-
     return (
-      <Dashboard
-        user={user}
+      <EmployeeDashboard
 
-        onRegisterClient={() =>
-          setPage(
-            "registerClient"
-          )
-        }
+        user={user}
 
         onLogout={
           handleLogout
         }
+
       />
     );
   }
@@ -582,12 +541,11 @@ function App() {
 
 
       <p>
-        Tu cuenta tiene un rol que
-        Can Wash no reconoce:
-        {" "}
+        El rol{" "}
         <strong>
           {user.rol}
-        </strong>
+        </strong>{" "}
+        no está configurado.
       </p>
 
 
