@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  AlertCircle,
+  Banknote,
+  CalendarClock,
   CalendarDays,
+  CheckCircle2,
   Clock,
   CreditCard,
   LogOut,
@@ -11,25 +15,40 @@ import {
   RefreshCw,
   Scissors,
   User,
-  CheckCircle2,
-  AlertCircle,
-  CalendarClock,
-  Banknote,
 } from "lucide-react";
 
 import { supabase } from "../lib/supabase";
 
-function EmployeeDashboard({ user, onLogout }) {
-  const [appointments, setAppointments] = useState([]);
-  const [payments, setPayments] = useState([]);
+import MobileMenu from "./mobileMenu";
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+function EmployeeDashboard({ user, onLogout }) {
+  // =====================================================
+  // ESTADOS
+  // =====================================================
+
+  const [appointments, setAppointments] =
+    useState([]);
+
+  const [payments, setPayments] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   const [selectedAppointment, setSelectedAppointment] =
     useState(null);
 
-  const [view, setView] = useState("citas");
+  const [view, setView] =
+    useState("citas");
+
+  // Menú móvil
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
 
   // =====================================================
   // CARGAR DATOS
@@ -50,9 +69,9 @@ function EmployeeDashboard({ user, onLogout }) {
     setError("");
 
     try {
-      // ===============================================
+      // =================================================
       // CITAS DEL EMPLEADO
-      // ===============================================
+      // =================================================
 
       const {
         data: appointmentData,
@@ -103,27 +122,37 @@ function EmployeeDashboard({ user, onLogout }) {
           "id_usuario",
           user.id_usuario
         )
-        .order("fecha", {
-          ascending: true,
-        })
-        .order("hora", {
-          ascending: true,
-        });
+        .order(
+          "fecha",
+          {
+            ascending: true,
+          }
+        )
+        .order(
+          "hora",
+          {
+            ascending: true,
+          }
+        );
+
 
       if (appointmentError) {
         throw appointmentError;
       }
 
+
       const appointmentsResult =
         appointmentData || [];
+
 
       setAppointments(
         appointmentsResult
       );
 
-      // ===============================================
-      // OBTENER IDs DE CITAS
-      // ===============================================
+
+      // =================================================
+      // IDS DE LAS CITAS
+      // =================================================
 
       const appointmentIds =
         appointmentsResult.map(
@@ -131,11 +160,14 @@ function EmployeeDashboard({ user, onLogout }) {
             appointment.id_cita
         );
 
-      // ===============================================
-      // PAGOS
-      // ===============================================
 
-      if (appointmentIds.length > 0) {
+      // =================================================
+      // PAGOS
+      // =================================================
+
+      if (
+        appointmentIds.length > 0
+      ) {
         const {
           data: paymentData,
           error: paymentError,
@@ -156,17 +188,23 @@ function EmployeeDashboard({ user, onLogout }) {
             "id_cita",
             appointmentIds
           )
-          .order("fecha_pago", {
-            ascending: false,
-          });
+          .order(
+            "fecha_pago",
+            {
+              ascending: false,
+            }
+          );
+
 
         if (paymentError) {
           throw paymentError;
         }
 
+
         setPayments(
           paymentData || []
         );
+
       } else {
         setPayments([]);
       }
@@ -197,24 +235,26 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
   // =====================================================
-  // FECHA DE HOY
+  // FECHA ACTUAL
   // =====================================================
 
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
+  const today =
+    new Date()
+      .toISOString()
+      .split("T")[0];
 
 
   // =====================================================
   // CITAS DE HOY
   // =====================================================
 
-  const todayAppointments = useMemo(() => {
-    return appointments.filter(
-      (appointment) =>
-        appointment.fecha === today
-    );
-  }, [appointments, today]);
+  const todayAppointments =
+    useMemo(() => {
+      return appointments.filter(
+        (appointment) =>
+          appointment.fecha === today
+      );
+    }, [appointments, today]);
 
 
   // =====================================================
@@ -233,7 +273,7 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
   // =====================================================
-  // CONFIRMADAS
+  // CITAS CONFIRMADAS
   // =====================================================
 
   const confirmedAppointments =
@@ -245,7 +285,7 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
   // =====================================================
-  // PENDIENTES
+  // CITAS PENDIENTES
   // =====================================================
 
   const pendingAppointments =
@@ -257,20 +297,37 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
   // =====================================================
-  // TOTAL PAGADO
+  // TOTAL DE PAGOS VALIDADOS
   // =====================================================
 
-  const totalPayments = payments
-    .filter(
-      (payment) =>
-        payment.estado === "VALIDADO"
-    )
-    .reduce(
-      (total, payment) =>
-        total +
-        Number(payment.monto || 0),
-      0
-    );
+  const totalPayments =
+    payments
+      .filter(
+        (payment) =>
+          payment.estado ===
+          "VALIDADO"
+      )
+      .reduce(
+        (total, payment) =>
+          total +
+          Number(
+            payment.monto || 0
+          ),
+        0
+      );
+
+
+  // =====================================================
+  // CAMBIAR VISTA
+  // =====================================================
+
+  const changeView = (newView) => {
+    setView(newView);
+
+    // Al seleccionar una opción,
+    // cerramos el menú móvil.
+    setMobileMenuOpen(false);
+  };
 
 
   // =====================================================
@@ -279,12 +336,18 @@ function EmployeeDashboard({ user, onLogout }) {
 
   const handleLogout = async () => {
     try {
-      const { error } =
+      setMobileMenuOpen(false);
+
+      const {
+        error: logoutError,
+      } =
         await supabase.auth.signOut();
 
-      if (error) {
-        console.error(error);
+
+      if (logoutError) {
+        throw logoutError;
       }
+
 
       onLogout();
 
@@ -304,6 +367,7 @@ function EmployeeDashboard({ user, onLogout }) {
   if (loading) {
     return (
       <div className="employee-loading">
+
         <PawPrint size={45} />
 
         <h2>
@@ -313,47 +377,71 @@ function EmployeeDashboard({ user, onLogout }) {
         <p>
           Consultando tus citas.
         </p>
+
       </div>
     );
   }
 
 
+  // =====================================================
+  // INTERFAZ
+  // =====================================================
+
   return (
     <div className="employee-dashboard">
 
-      {/* =============================================
+      {/* =================================================
           SIDEBAR
-      ============================================== */}
+      ================================================== */}
 
-      <aside className="employee-sidebar">
+      <aside
+        className={
+          mobileMenuOpen
+            ? "employee-sidebar employee-sidebar-open"
+            : "employee-sidebar"
+        }
+      >
+
+        {/* LOGO */}
 
         <div className="employee-logo">
 
           <PawPrint size={34} />
 
           <div>
+
             <strong>
               Can Wash
             </strong>
 
             <span>
-              PANEL DE EMPLEADO
+              {user?.rol === "ADMIN"
+                ? "PANEL DE ADMINISTRADOR"
+                : "PANEL DE EMPLEADO"}
             </span>
+
           </div>
 
         </div>
 
 
+        {/* =================================================
+            NAVEGACIÓN
+        ================================================== */}
+
         <nav>
 
+          {/* CITAS */}
+
           <button
+            type="button"
             className={
               view === "citas"
                 ? "employee-nav-active"
                 : ""
             }
             onClick={() =>
-              setView("citas")
+              changeView("citas")
             }
           >
             <CalendarDays size={20} />
@@ -362,14 +450,17 @@ function EmployeeDashboard({ user, onLogout }) {
           </button>
 
 
+          {/* PAGOS */}
+
           <button
+            type="button"
             className={
               view === "pagos"
                 ? "employee-nav-active"
                 : ""
             }
             onClick={() =>
-              setView("pagos")
+              changeView("pagos")
             }
           >
             <CreditCard size={20} />
@@ -380,7 +471,12 @@ function EmployeeDashboard({ user, onLogout }) {
         </nav>
 
 
+        {/* =================================================
+            CERRAR SESIÓN
+        ================================================== */}
+
         <button
+          type="button"
           className="employee-logout"
           onClick={handleLogout}
         >
@@ -392,30 +488,58 @@ function EmployeeDashboard({ user, onLogout }) {
       </aside>
 
 
-      {/* =============================================
+      {/* =================================================
+          MENÚ FLOTANTE MÓVIL
+      ================================================== */}
+
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+
+        onToggle={() =>
+          setMobileMenuOpen(
+            (current) => !current
+          )
+        }
+
+        onClose={() =>
+          setMobileMenuOpen(false)
+        }
+      />
+
+
+      {/* =================================================
           CONTENIDO
-      ============================================== */}
+      ================================================== */}
 
       <main className="employee-content">
 
-        {/* TOPBAR */}
+        {/* =================================================
+            TOPBAR
+        ================================================== */}
 
         <header className="employee-topbar">
 
           <div>
+
             <span className="employee-section-label">
               CAN WASH
             </span>
 
             <h2>
-              Panel de empleado
+              {user?.rol === "ADMIN"
+                ? "Panel de administrador"
+                : "Panel de empleado"}
             </h2>
+
           </div>
 
 
           <div className="employee-topbar-actions">
 
+            {/* ACTUALIZAR */}
+
             <button
+              type="button"
               className="employee-refresh"
               onClick={loadData}
             >
@@ -425,15 +549,21 @@ function EmployeeDashboard({ user, onLogout }) {
             </button>
 
 
+            {/* USUARIO */}
+
             <div className="employee-user">
 
               <div className="employee-avatar">
+
                 {user?.nombre
                   ?.charAt(0)
                   .toUpperCase() || "E"}
+
               </div>
 
+
               <div>
+
                 <strong>
                   {user?.nombre ||
                     "Empleado"}
@@ -443,6 +573,7 @@ function EmployeeDashboard({ user, onLogout }) {
                   {user?.rol ||
                     "EMPLEADO"}
                 </span>
+
               </div>
 
             </div>
@@ -452,25 +583,31 @@ function EmployeeDashboard({ user, onLogout }) {
         </header>
 
 
-        {/* ERROR */}
+        {/* =================================================
+            ERROR
+        ================================================== */}
 
         {error && (
           <div className="employee-error">
+
             <AlertCircle size={20} />
 
             {error}
+
           </div>
         )}
 
 
-        {/* =============================================
-            CITAS
-        ============================================== */}
+        {/* =================================================
+            VISTA CITAS
+        ================================================== */}
 
         {view === "citas" && (
           <>
 
-            {/* BIENVENIDA */}
+            {/* =============================================
+                BIENVENIDA
+            ============================================== */}
 
             <section className="employee-welcome">
 
@@ -480,11 +617,13 @@ function EmployeeDashboard({ user, onLogout }) {
                   TU JORNADA
                 </span>
 
+
                 <h1>
                   ¡Hola,{" "}
                   {user?.nombre ||
                     "Empleado"}!
                 </h1>
+
 
                 <p>
                   Consulta tus citas,
@@ -495,6 +634,7 @@ function EmployeeDashboard({ user, onLogout }) {
 
               </div>
 
+
               <PawPrint
                 className="employee-welcome-paw"
               />
@@ -502,12 +642,16 @@ function EmployeeDashboard({ user, onLogout }) {
             </section>
 
 
-            {/* ESTADÍSTICAS */}
+            {/* =============================================
+                ESTADÍSTICAS
+            ============================================== */}
 
             <section className="employee-stats">
 
               <EmployeeStat
-                icon={<CalendarDays />}
+                icon={
+                  <CalendarDays />
+                }
                 title="Citas de hoy"
                 value={
                   todayAppointments.length
@@ -517,7 +661,9 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
               <EmployeeStat
-                icon={<CheckCircle2 />}
+                icon={
+                  <CheckCircle2 />
+                }
                 title="Confirmadas"
                 value={
                   confirmedAppointments
@@ -527,7 +673,9 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
               <EmployeeStat
-                icon={<AlertCircle />}
+                icon={
+                  <AlertCircle />
+                }
                 title="Pendientes"
                 value={
                   pendingAppointments
@@ -537,7 +685,9 @@ function EmployeeDashboard({ user, onLogout }) {
 
 
               <EmployeeStat
-                icon={<CalendarClock />}
+                icon={
+                  <CalendarClock />
+                }
                 title="Próximas"
                 value={
                   upcomingAppointments.length
@@ -548,30 +698,46 @@ function EmployeeDashboard({ user, onLogout }) {
             </section>
 
 
-            {/* CITAS DE HOY */}
+            {/* =============================================
+                CITAS DE HOY
+            ============================================== */}
 
             <AppointmentSection
               title="Citas de hoy"
+
               subtitle="Servicios programados para tu jornada."
+
               appointments={
                 todayAppointments
               }
-              payments={payments}
+
+              payments={
+                payments
+              }
+
               onSelect={
                 setSelectedAppointment
               }
             />
 
 
-            {/* PRÓXIMAS */}
+            {/* =============================================
+                PRÓXIMAS CITAS
+            ============================================== */}
 
             <AppointmentSection
               title="Próximas citas"
+
               subtitle="Servicios que tienes asignados."
+
               appointments={
                 upcomingAppointments
               }
-              payments={payments}
+
+              payments={
+                payments
+              }
+
               onSelect={
                 setSelectedAppointment
               }
@@ -581,16 +747,20 @@ function EmployeeDashboard({ user, onLogout }) {
         )}
 
 
-        {/* =============================================
-            PAGOS
-        ============================================== */}
+        {/* =================================================
+            VISTA PAGOS
+        ================================================== */}
 
         {view === "pagos" && (
           <PaymentsView
-            payments={payments}
+            payments={
+              payments
+            }
+
             appointments={
               appointments
             }
+
             totalPayments={
               totalPayments
             }
@@ -600,20 +770,24 @@ function EmployeeDashboard({ user, onLogout }) {
       </main>
 
 
-      {/* =============================================
+      {/* =================================================
           MODAL DETALLE CITA
-      ============================================== */}
+      ================================================== */}
 
       {selectedAppointment && (
         <AppointmentModal
           appointment={
             selectedAppointment
           }
-          payments={payments.filter(
-            (payment) =>
-              payment.id_cita ===
-              selectedAppointment.id_cita
-          )}
+
+          payments={
+            payments.filter(
+              (payment) =>
+                payment.id_cita ===
+                selectedAppointment.id_cita
+            )
+          }
+
           onClose={() =>
             setSelectedAppointment(null)
           }
@@ -625,9 +799,9 @@ function EmployeeDashboard({ user, onLogout }) {
 }
 
 
-// =====================================================
-// ESTADÍSTICA
-// =====================================================
+/* =========================================================
+   TARJETA ESTADÍSTICA
+========================================================= */
 
 function EmployeeStat({
   icon,
@@ -642,7 +816,9 @@ function EmployeeStat({
         {icon}
       </div>
 
+
       <div>
+
         <span>
           {title}
         </span>
@@ -654,6 +830,7 @@ function EmployeeStat({
         <small>
           {text}
         </small>
+
       </div>
 
     </article>
@@ -661,9 +838,9 @@ function EmployeeStat({
 }
 
 
-// =====================================================
-// SECCIÓN CITAS
-// =====================================================
+/* =========================================================
+   SECCIÓN DE CITAS
+========================================================= */
 
 function AppointmentSection({
   title,
@@ -678,9 +855,15 @@ function AppointmentSection({
       <div className="employee-panel-title">
 
         <div>
-          <h2>{title}</h2>
 
-          <p>{subtitle}</p>
+          <h2>
+            {title}
+          </h2>
+
+          <p>
+            {subtitle}
+          </p>
+
         </div>
 
       </div>
@@ -714,9 +897,11 @@ function AppointmentSection({
                 key={
                   appointment.id_cita
                 }
+
                 appointment={
                   appointment
                 }
+
                 payments={
                   payments.filter(
                     (payment) =>
@@ -724,6 +909,7 @@ function AppointmentSection({
                       appointment.id_cita
                   )
                 }
+
                 onClick={() =>
                   onSelect(
                     appointment
@@ -735,7 +921,6 @@ function AppointmentSection({
           )}
 
         </div>
-
       )}
 
     </section>
@@ -743,26 +928,35 @@ function AppointmentSection({
 }
 
 
-// =====================================================
-// TARJETA CITA
-// =====================================================
+/* =========================================================
+   TARJETA DE CITA
+========================================================= */
 
 function AppointmentCard({
   appointment,
   payments,
   onClick,
 }) {
-  const totalPaid = payments
-    .filter(
-      (payment) =>
-        payment.estado === "VALIDADO"
-    )
-    .reduce(
-      (total, payment) =>
-        total +
-        Number(payment.monto || 0),
-      0
-    );
+  // =====================================================
+  // TOTAL PAGADO
+  // =====================================================
+
+  const totalPaid =
+    payments
+      .filter(
+        (payment) =>
+          payment.estado ===
+          "VALIDADO"
+      )
+      .reduce(
+        (total, payment) =>
+          total +
+          Number(
+            payment.monto || 0
+          ),
+        0
+      );
+
 
   return (
     <article
@@ -770,11 +964,17 @@ function AppointmentCard({
       onClick={onClick}
     >
 
+      {/* =================================================
+          FECHA / HORA
+      ================================================== */}
+
       <div className="appointment-time">
 
         <Clock size={19} />
 
+
         <div>
+
           <strong>
             {formatTime(
               appointment.hora
@@ -786,35 +986,47 @@ function AppointmentCard({
               appointment.fecha
             )}
           </span>
+
         </div>
 
       </div>
 
+
+      {/* =================================================
+          INFORMACIÓN PRINCIPAL
+      ================================================== */}
 
       <div className="appointment-main">
 
         <div className="appointment-heading">
 
           <div>
+
             <h3>
               {appointment.mascotas
                 ?.nombre ||
                 "Mascota"}
             </h3>
 
+
             <span>
+
               {appointment.mascotas
                 ?.especie ||
                 "Sin especie"}
+
 
               {appointment.mascotas
                 ?.raza &&
                 ` · ${appointment.mascotas.raza}`}
 
+
               {appointment.mascotas
                 ?.tamano &&
                 ` · ${appointment.mascotas.tamano}`}
+
             </span>
+
           </div>
 
 
@@ -827,33 +1039,44 @@ function AppointmentCard({
         </div>
 
 
-        {/* SERVICIOS */}
+        {/* =================================================
+            SERVICIOS
+        ================================================== */}
 
         <div className="appointment-services">
 
           {appointment.detalle_cita
             ?.map((detail) => (
+
               <span
                 key={
                   detail.id_detalle
                 }
               >
+
                 <Scissors size={15} />
 
                 {detail.servicios
                   ?.nombre ||
                   "Servicio"}
+
               </span>
+
             ))}
 
         </div>
 
 
-        {/* INFORMACIÓN */}
+        {/* =================================================
+            INFORMACIÓN
+        ================================================== */}
 
         <div className="appointment-information">
 
+          {/* CLIENTE */}
+
           <div>
+
             <User size={17} />
 
             <span>
@@ -861,10 +1084,14 @@ function AppointmentCard({
                 ?.nombre ||
                 "Sin cliente"}
             </span>
+
           </div>
 
 
+          {/* TELÉFONO */}
+
           <div>
+
             <Phone size={17} />
 
             <span>
@@ -872,20 +1099,28 @@ function AppointmentCard({
                 ?.telefono ||
                 "Sin teléfono"}
             </span>
+
           </div>
 
 
+          {/* COLONIA */}
+
           <div>
+
             <MapPin size={17} />
 
             <span>
               {appointment.colonia ||
                 "Sin colonia"}
             </span>
+
           </div>
 
 
+          {/* PAGO */}
+
           <div>
+
             <Banknote size={17} />
 
             <span>
@@ -894,6 +1129,7 @@ function AppointmentCard({
                 totalPaid
               )}
             </span>
+
           </div>
 
         </div>
@@ -905,9 +1141,9 @@ function AppointmentCard({
 }
 
 
-// =====================================================
-// PAGOS
-// =====================================================
+/* =========================================================
+   PAGOS
+========================================================= */
 
 function PaymentsView({
   payments,
@@ -917,23 +1153,32 @@ function PaymentsView({
   return (
     <>
 
+      {/* =================================================
+          BIENVENIDA PAGOS
+      ================================================== */}
+
       <section className="employee-welcome">
 
         <div>
+
           <span className="employee-welcome-label">
             PAGOS
           </span>
 
+
           <h1>
             Historial de pagos
           </h1>
+
 
           <p>
             Consulta los pagos asociados
             a las citas que tienes
             asignadas.
           </p>
+
         </div>
+
 
         <CreditCard
           className="employee-welcome-paw"
@@ -942,11 +1187,19 @@ function PaymentsView({
       </section>
 
 
+      {/* =================================================
+          ESTADÍSTICAS
+      ================================================== */}
+
       <section className="employee-stats payments-stats">
 
         <EmployeeStat
-          icon={<Banknote />}
+          icon={
+            <Banknote />
+          }
+
           title="Pagos validados"
+
           value={
             payments.filter(
               (payment) =>
@@ -954,28 +1207,40 @@ function PaymentsView({
                 "VALIDADO"
             ).length
           }
+
           text="Registros validados"
         />
 
+
         <EmployeeStat
-          icon={<CreditCard />}
+          icon={
+            <CreditCard />
+          }
+
           title="Total registrado"
+
           value={
             formatMoney(
               totalPayments
             )
           }
+
           text="Pagos validados"
         />
 
       </section>
 
 
+      {/* =================================================
+          LISTA DE PAGOS
+      ================================================== */}
+
       <section className="employee-appointments">
 
         <div className="employee-panel-title">
 
           <div>
+
             <h2>
               Movimientos
             </h2>
@@ -984,6 +1249,7 @@ function PaymentsView({
               Pagos correspondientes a
               tus citas.
             </p>
+
           </div>
 
         </div>
@@ -998,6 +1264,11 @@ function PaymentsView({
             <h3>
               No hay pagos
             </h3>
+
+            <p>
+              Todavía no hay movimientos
+              asociados a tus citas.
+            </p>
 
           </div>
 
@@ -1015,26 +1286,37 @@ function PaymentsView({
                       payment.id_cita
                   );
 
+
                 return (
                   <div
                     className="payment-row"
+
                     key={
                       payment.id_pago
                     }
                   >
 
+                    {/* ICONO */}
+
                     <div className="payment-icon">
+
                       <Banknote />
+
                     </div>
 
+
+                    {/* INFORMACIÓN */}
 
                     <div className="payment-information">
 
                       <strong>
-                        {payment.tipo}
+                        {payment.tipo ||
+                          "Pago"}
                       </strong>
 
+
                       <span>
+
                         {appointment
                           ?.clientes
                           ?.nombre ||
@@ -1046,16 +1328,21 @@ function PaymentsView({
                           ?.mascotas
                           ?.nombre ||
                           "Mascota"}
+
                       </span>
 
                     </div>
 
 
+                    {/* MÉTODO */}
+
                     <div className="payment-method">
 
                       <strong>
-                        {payment.metodo}
+                        {payment.metodo ||
+                          "Sin especificar"}
                       </strong>
+
 
                       <span>
                         {formatPaymentDate(
@@ -1066,6 +1353,8 @@ function PaymentsView({
                     </div>
 
 
+                    {/* MONTO */}
+
                     <div className="payment-amount">
 
                       <strong>
@@ -1073,6 +1362,7 @@ function PaymentsView({
                           payment.monto
                         )}
                       </strong>
+
 
                       <StatusBadge
                         status={
@@ -1088,7 +1378,6 @@ function PaymentsView({
             )}
 
           </div>
-
         )}
 
       </section>
@@ -1098,66 +1387,110 @@ function PaymentsView({
 }
 
 
-// =====================================================
-// MODAL DETALLE
-// =====================================================
+/* =========================================================
+   MODAL DETALLE DE CITA
+========================================================= */
 
 function AppointmentModal({
   appointment,
   payments,
   onClose,
 }) {
+  // =====================================================
+  // TOTAL DE SERVICIOS
+  // =====================================================
+
   const serviceTotal =
     appointment.detalle_cita
       ?.reduce(
         (total, detail) =>
           total +
-          Number(detail.precio || 0) *
-            Number(
-              detail.cantidad || 1
-            ),
+          Number(
+            detail.precio || 0
+          ) *
+          Number(
+            detail.cantidad || 1
+          ),
         0
       ) || 0;
+
+
+  // =====================================================
+  // COSTO DE VISITA
+  // =====================================================
 
   const visitCost =
     Number(
       appointment.costo_visita || 0
     );
 
-  const total =
-    serviceTotal + visitCost;
 
-  const paid = payments
-    .filter(
-      (payment) =>
-        payment.estado === "VALIDADO"
-    )
-    .reduce(
-      (sum, payment) =>
-        sum +
-        Number(payment.monto || 0),
+  // =====================================================
+  // TOTAL
+  // =====================================================
+
+  const total =
+    serviceTotal +
+    visitCost;
+
+
+  // =====================================================
+  // PAGADO
+  // =====================================================
+
+  const paid =
+    payments
+      .filter(
+        (payment) =>
+          payment.estado ===
+          "VALIDADO"
+      )
+      .reduce(
+        (sum, payment) =>
+          sum +
+          Number(
+            payment.monto || 0
+          ),
+        0
+      );
+
+
+  // =====================================================
+  // PENDIENTE
+  // =====================================================
+
+  const pending =
+    Math.max(
+      total - paid,
       0
     );
 
-  const pending =
-    Math.max(total - paid, 0);
 
   return (
     <div
       className="appointment-modal-background"
-      onClick={onClose}
+
+      onClick={
+        onClose
+      }
     >
 
       <div
         className="appointment-modal"
+
         onClick={(e) =>
           e.stopPropagation()
         }
       >
 
+        {/* =================================================
+            HEADER
+        ================================================== */}
+
         <div className="modal-header">
 
           <div>
+
             <span>
               DETALLE DE CITA
             </span>
@@ -1167,9 +1500,12 @@ function AppointmentModal({
                 ?.nombre ||
                 "Mascota"}
             </h2>
+
           </div>
 
+
           <button
+            type="button"
             onClick={onClose}
           >
             ×
@@ -1178,10 +1514,15 @@ function AppointmentModal({
         </div>
 
 
+        {/* =================================================
+            INFORMACIÓN
+        ================================================== */}
+
         <div className="modal-grid">
 
           <ModalInformation
             title="Fecha"
+
             value={
               formatDate(
                 appointment.fecha
@@ -1189,8 +1530,10 @@ function AppointmentModal({
             }
           />
 
+
           <ModalInformation
             title="Hora"
+
             value={
               formatTime(
                 appointment.hora
@@ -1198,31 +1541,39 @@ function AppointmentModal({
             }
           />
 
+
           <ModalInformation
             title="Cliente"
+
             value={
               appointment.clientes
                 ?.nombre
             }
           />
 
+
           <ModalInformation
             title="Teléfono"
+
             value={
               appointment.clientes
                 ?.telefono
             }
           />
 
+
           <ModalInformation
             title="Colonia"
+
             value={
               appointment.colonia
             }
           />
 
+
           <ModalInformation
             title="Estado"
+
             value={
               appointment.estado
             }
@@ -1231,61 +1582,89 @@ function AppointmentModal({
         </div>
 
 
+        {/* =================================================
+            MASCOTA
+        ================================================== */}
+
         <div className="modal-section">
 
           <h3>
             Mascota
           </h3>
 
+
           <p>
-            <strong>Especie:</strong>{" "}
+            <strong>
+              Especie:
+            </strong>{" "}
+
             {appointment.mascotas
               ?.especie ||
               "Sin información"}
           </p>
 
+
           <p>
-            <strong>Raza:</strong>{" "}
+            <strong>
+              Raza:
+            </strong>{" "}
+
             {appointment.mascotas
               ?.raza ||
               "Sin información"}
           </p>
 
+
           <p>
-            <strong>Tamaño:</strong>{" "}
+            <strong>
+              Tamaño:
+            </strong>{" "}
+
             {appointment.mascotas
               ?.tamano ||
               "Sin información"}
           </p>
 
+
           {appointment.mascotas
             ?.padecimientos && (
             <p>
+
               <strong>
                 Padecimientos:
               </strong>{" "}
+
               {
                 appointment.mascotas
                   .padecimientos
               }
+
             </p>
           )}
+
 
           {appointment.mascotas
             ?.comportamiento && (
             <p>
+
               <strong>
                 Comportamiento:
               </strong>{" "}
+
               {
                 appointment.mascotas
                   .comportamiento
               }
+
             </p>
           )}
 
         </div>
 
+
+        {/* =================================================
+            SERVICIOS
+        ================================================== */}
 
         <div className="modal-section">
 
@@ -1293,11 +1672,13 @@ function AppointmentModal({
             Servicios
           </h3>
 
+
           {appointment.detalle_cita
             ?.map((detail) => (
 
               <div
                 className="modal-service-row"
+
                 key={
                   detail.id_detalle
                 }
@@ -1305,8 +1686,10 @@ function AppointmentModal({
 
                 <span>
                   {detail.servicios
-                    ?.nombre}
+                    ?.nombre ||
+                    "Servicio"}
                 </span>
+
 
                 <strong>
                   {formatMoney(
@@ -1321,42 +1704,61 @@ function AppointmentModal({
         </div>
 
 
+        {/* =================================================
+            PAGO
+        ================================================== */}
+
         <div className="modal-section">
 
           <h3>
             Pago
           </h3>
 
+
           <div className="appointment-payment-summary">
 
             <div>
+
               <span>
                 Total
               </span>
 
               <strong>
-                {formatMoney(total)}
+                {formatMoney(
+                  total
+                )}
               </strong>
+
             </div>
 
+
             <div>
+
               <span>
                 Pagado
               </span>
 
               <strong>
-                {formatMoney(paid)}
+                {formatMoney(
+                  paid
+                )}
               </strong>
+
             </div>
 
+
             <div>
+
               <span>
                 Pendiente
               </span>
 
               <strong>
-                {formatMoney(pending)}
+                {formatMoney(
+                  pending
+                )}
               </strong>
+
             </div>
 
           </div>
@@ -1364,8 +1766,11 @@ function AppointmentModal({
         </div>
 
 
-        {appointment.notas && (
+        {/* =================================================
+            NOTAS
+        ================================================== */}
 
+        {appointment.notas && (
           <div className="modal-section">
 
             <h3>
@@ -1377,7 +1782,6 @@ function AppointmentModal({
             </p>
 
           </div>
-
         )}
 
       </div>
@@ -1386,6 +1790,10 @@ function AppointmentModal({
   );
 }
 
+
+/* =========================================================
+   INFORMACIÓN DEL MODAL
+========================================================= */
 
 function ModalInformation({
   title,
@@ -1399,7 +1807,8 @@ function ModalInformation({
       </span>
 
       <strong>
-        {value || "Sin información"}
+        {value ||
+          "Sin información"}
       </strong>
 
     </div>
@@ -1407,16 +1816,22 @@ function ModalInformation({
 }
 
 
-// =====================================================
-// ESTADOS
-// =====================================================
+/* =========================================================
+   ESTADO
+========================================================= */
 
-function StatusBadge({ status }) {
+function StatusBadge({
+  status,
+}) {
   const normalized =
-    status?.toUpperCase();
+    status
+      ?.toUpperCase() ||
+    "";
+
 
   let className =
     "status-default";
+
 
   if (
     normalized === "CONFIRMADA" ||
@@ -1426,6 +1841,7 @@ function StatusBadge({ status }) {
       "status-confirmed";
   }
 
+
   if (
     normalized === "PENDIENTE"
   ) {
@@ -1433,12 +1849,14 @@ function StatusBadge({ status }) {
       "status-pending";
   }
 
+
   if (
     normalized === "COMPLETADA"
   ) {
     className =
       "status-completed";
   }
+
 
   if (
     normalized === "CANCELADA" ||
@@ -1448,19 +1866,23 @@ function StatusBadge({ status }) {
       "status-cancelled";
   }
 
+
   return (
     <span
-      className={`appointment-status ${className}`}
+      className={
+        `appointment-status ${className}`
+      }
     >
-      {status}
+      {status ||
+        "SIN ESTADO"}
     </span>
   );
 }
 
 
-// =====================================================
-// FORMATOS
-// =====================================================
+/* =========================================================
+   FORMATEAR DINERO
+========================================================= */
 
 function formatMoney(value) {
   return new Intl.NumberFormat(
@@ -1470,15 +1892,22 @@ function formatMoney(value) {
       currency: "MXN",
     }
   ).format(
-    Number(value || 0)
+    Number(
+      value || 0
+    )
   );
 }
 
+
+/* =========================================================
+   FORMATEAR FECHA
+========================================================= */
 
 function formatDate(date) {
   if (!date) {
     return "";
   }
+
 
   return new Intl.DateTimeFormat(
     "es-MX",
@@ -1488,15 +1917,22 @@ function formatDate(date) {
       year: "numeric",
     }
   ).format(
-    new Date(`${date}T00:00:00`)
+    new Date(
+      `${date}T00:00:00`
+    )
   );
 }
 
+
+/* =========================================================
+   FORMATEAR HORA
+========================================================= */
 
 function formatTime(time) {
   if (!time) {
     return "";
   }
+
 
   return time
     .toString()
@@ -1504,10 +1940,15 @@ function formatTime(time) {
 }
 
 
+/* =========================================================
+   FORMATEAR FECHA DE PAGO
+========================================================= */
+
 function formatPaymentDate(date) {
   if (!date) {
     return "";
   }
+
 
   return new Intl.DateTimeFormat(
     "es-MX",

@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* =========================================================
-   VARIABLES
+   CAN WASH - VARIABLES
 ========================================================= */
 
 :root {
@@ -69,6 +69,7 @@ html {
 
 body {
   margin: 0;
+
   min-width: 320px;
   min-height: 100vh;
 
@@ -101,7 +102,7 @@ p {
 
 
 /* =========================================================
-   FORMULARIOS GENERALES
+   FORMULARIOS
 ========================================================= */
 
 label {
@@ -149,13 +150,15 @@ textarea:focus {
   border-color: var(--primary);
 
   box-shadow:
-    0 0 0 3px rgba(137, 168, 178, 0.18);
+    0 0 0 3px
+    rgba(137, 168, 178, 0.18);
 }
 
 input:disabled,
 select:disabled,
 textarea:disabled {
   opacity: 0.75;
+
   cursor: not-allowed;
 }
 
@@ -174,6 +177,7 @@ textarea {
   width: 100%;
 
   margin-top: 25px;
+
   padding: 15px 20px;
 
   border: none;
@@ -203,7 +207,8 @@ textarea {
   transform: translateY(-1px);
 
   box-shadow:
-    0 8px 20px rgba(137, 168, 178, 0.3);
+    0 8px 20px
+    rgba(137, 168, 178, 0.3);
 }
 
 .primary-button:active:not(:disabled) {
@@ -232,10 +237,10 @@ textarea {
 
   gap: 7px;
 
-  white-space: nowrap;
-
   font-size: 13px;
   font-weight: 600;
+
+  white-space: nowrap;
 }
 
 .small-button:hover {
@@ -244,6 +249,7 @@ textarea {
 
 .back-button {
   margin-bottom: 25px;
+
   padding: 8px 0;
 
   border: none;
@@ -316,10 +322,10 @@ textarea {
 .login-decoration::before {
   content: "";
 
-  position: absolute;
-
   width: 450px;
   height: 450px;
+
+  position: absolute;
 
   top: -180px;
   left: -180px;
@@ -333,10 +339,10 @@ textarea {
 .login-decoration::after {
   content: "";
 
-  position: absolute;
-
   width: 350px;
   height: 350px;
+
+  position: absolute;
 
   right: -130px;
   bottom: -150px;
@@ -410,7 +416,8 @@ textarea {
   color: var(--dark);
 
   box-shadow:
-    0 8px 20px rgba(137, 168, 178, 0.2);
+    0 8px 20px
+    rgba(137, 168, 178, 0.2);
 }
 
 .login-card h2 {
@@ -430,12 +437,13 @@ textarea {
   color: var(--muted);
 
   font-size: 14px;
+
   line-height: 1.7;
 }
 
 
 /* =========================================================
-   INPUT LOGIN
+   INPUT CON ICONO
 ========================================================= */
 
 .input-container {
@@ -463,7 +471,8 @@ textarea {
   border-color: var(--primary);
 
   box-shadow:
-    0 0 0 3px rgba(137, 168, 178, 0.18);
+    0 0 0 3px
+    rgba(137, 168, 178, 0.18);
 }
 
 .input-container svg {
@@ -511,6 +520,7 @@ textarea {
 
 .password-button:hover:not(:disabled) {
   background: var(--background);
+
   color: var(--dark);
 }
 
@@ -547,6 +557,11 @@ textarea {
   font-weight: 500;
 }
 
+
+/* =========================================================
+   ENLACE REGISTRO
+========================================================= */
+
 .register-link {
   margin-top: 20px;
 
@@ -580,7 +595,7 @@ textarea {
 
 
 /* =========================================================
-   REGISTRO - CLIENTE / EMPLEADO
+   SELECTOR CLIENTE / EMPLEADO
 ========================================================= */
 
 .account-type-grid {
@@ -603,6 +618,7 @@ button.account-type-card {
   min-height: 145px;
 
   margin: 0;
+
   padding: 18px;
 
   appearance: none;
@@ -623,10 +639,9 @@ button.account-type-card {
 
   text-align: left;
 
-  font-family: inherit;
-
   box-shadow:
-    0 4px 12px rgba(23, 56, 74, 0.04);
+    0 4px 12px
+    rgba(23, 56, 74, 0.04);
 
   transition:
     border-color 0.2s ease,
@@ -644,7 +659,8 @@ button.account-type-card:hover:not(:disabled) {
   transform: translateY(-2px);
 
   box-shadow:
-    0 8px 18px rgba(23, 56, 74, 0.08);
+    0 8px 18px
+    rgba(23, 56, 74, 0.08);
 }
 
 button.account-type-card.account-type-selected {
@@ -654,7 +670,8 @@ button.account-type-card.account-type-selected {
     rgba(179, 200, 207, 0.2);
 
   box-shadow:
-    0 0 0 3px rgba(137, 168, 178, 0.12);
+    0 0 0 3px
+    rgba(137, 168, 178, 0.12);
 }
 
 .account-type-icon {
@@ -670,18 +687,17 @@ button.account-type-card.account-type-selected {
 
   background: var(--cream);
   color: var(--dark);
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
 }
 
-.account-type-selected .account-type-icon {
+.account-type-selected
+.account-type-icon {
   background: var(--primary);
+
   color: var(--white);
 }
 
-.account-type-card > div:last-child {
+.account-type-card
+> div:last-child {
   width: 100%;
 
   display: flex;
@@ -693,72 +709,48 @@ button.account-type-card.account-type-selected {
 .account-type-card strong {
   display: block;
 
-  margin: 0;
-
   color: var(--dark);
 
   font-size: 15px;
   font-weight: 700;
-
-  line-height: 1.2;
 }
 
 .account-type-card span {
   display: block;
-
-  margin: 0;
 
   color: var(--muted);
 
   font-size: 12px;
 
   line-height: 1.5;
-
-  white-space: normal;
-}
-
-button.account-type-card:focus {
-  outline: none;
 }
 
 button.account-type-card:focus-visible {
   outline:
-    3px solid rgba(137, 168, 178, 0.3);
+    3px solid
+    rgba(137, 168, 178, 0.3);
 
   outline-offset: 2px;
 }
 
-button.account-type-card:disabled {
-  opacity: 0.6;
-
-  transform: none;
-}
-
 
 /* =========================================================
-   DASHBOARD ADMIN
+   SIDEBARS COMPARTIDOS
 ========================================================= */
 
-.dashboard {
-  width: 100%;
-  min-height: 100vh;
-
-  display: flex;
-
-  background: var(--background);
-}
-
-.sidebar {
+.employee-sidebar,
+.client-sidebar {
   width: 250px;
   height: 100vh;
 
-  padding: 30px 18px;
-
   position: fixed;
+
   top: 0;
   left: 0;
 
   z-index: 100;
+
+  padding: 30px 18px;
 
   display: flex;
   flex-direction: column;
@@ -773,10 +765,16 @@ button.account-type-card:disabled {
   color: var(--white);
 }
 
-.sidebar-logo {
-  margin-bottom: 45px;
 
+/* =========================================================
+   LOGOS SIDEBAR
+========================================================= */
+
+.employee-logo,
+.client-logo {
   padding: 0 8px;
+
+  margin-bottom: 45px;
 
   display: flex;
   align-items: center;
@@ -784,15 +782,20 @@ button.account-type-card:disabled {
   gap: 12px;
 }
 
-.sidebar-logo strong {
+.employee-logo strong,
+.employee-logo span,
+.client-logo strong,
+.client-logo span {
   display: block;
+}
 
+.employee-logo strong,
+.client-logo strong {
   font-size: 18px;
 }
 
-.sidebar-logo span {
-  display: block;
-
+.employee-logo span,
+.client-logo span {
   margin-top: 3px;
 
   font-size: 10px;
@@ -802,14 +805,21 @@ button.account-type-card:disabled {
   opacity: 0.8;
 }
 
-.sidebar nav {
+
+/* =========================================================
+   NAVEGACIÓN SIDEBAR
+========================================================= */
+
+.employee-sidebar nav,
+.client-sidebar nav {
   display: flex;
   flex-direction: column;
 
   gap: 7px;
 }
 
-.sidebar button {
+.employee-sidebar button,
+.client-sidebar button {
   width: 100%;
 
   padding: 13px;
@@ -829,543 +839,31 @@ button.account-type-card:disabled {
 
   font-size: 14px;
   font-weight: 500;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
-.sidebar button:hover {
+.employee-sidebar button:hover,
+.client-sidebar button:hover {
   background:
     rgba(255, 255, 255, 0.15);
 }
 
-.sidebar .nav-active {
+.employee-sidebar
+.employee-nav-active,
+.client-sidebar
+.client-nav-active {
   background:
     rgba(255, 255, 255, 0.22);
 
   font-weight: 600;
 }
 
-.logout-button {
+.employee-logout,
+.client-logout {
   margin-top: auto;
-}
-
-.dashboard-content {
-  width: calc(100% - 250px);
-  min-height: 100vh;
-
-  margin-left: 250px;
-
-  padding: 0 35px 50px;
-}
-
-
-/* =========================================================
-   ADMIN TOPBAR
-========================================================= */
-
-.topbar {
-  min-height: 85px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.topbar > div:first-child > span {
-  color: var(--muted);
-
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-
-  gap: 11px;
-}
-
-.user strong,
-.user span {
-  display: block;
-}
-
-.user strong {
-  color: var(--dark);
-
-  font-size: 14px;
-}
-
-.user span {
-  margin-top: 3px;
-
-  color: var(--muted);
-
-  font-size: 11px;
-}
-
-.avatar,
-.client-avatar {
-  display: grid;
-  place-items: center;
-
-  border-radius: 50%;
-
-  background: var(--secondary);
-  color: var(--dark);
-
-  font-weight: 700;
-}
-
-.avatar {
-  width: 43px;
-  height: 43px;
-}
-
-
-/* =========================================================
-   ADMIN BIENVENIDA
-========================================================= */
-
-.welcome-card {
-  min-height: 240px;
-
-  padding: 40px;
-
-  position: relative;
-
-  overflow: hidden;
-
-  border-radius: 20px;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--secondary),
-      var(--cream)
-    );
-
-  box-shadow: var(--shadow);
-}
-
-.welcome-card h1 {
-  margin: 8px 0;
-
-  color: var(--dark);
-
-  font-size: 36px;
-
-  letter-spacing: -1px;
-}
-
-.welcome-card p {
-  max-width: 520px;
-
-  margin-bottom: 0;
-
-  color: var(--text);
-
-  line-height: 1.6;
-}
-
-.welcome-label {
-  color: var(--dark);
-
-  font-size: 11px;
-  font-weight: 700;
-
-  letter-spacing: 3px;
-}
-
-.welcome-button {
-  margin-top: 22px;
-
-  padding: 12px 17px;
-
-  border: none;
-  border-radius: 10px;
-
-  background: var(--dark);
-  color: var(--white);
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  font-weight: 600;
-}
-
-.welcome-button:hover {
-  opacity: 0.92;
-
-  transform: translateY(-1px);
-}
-
-.welcome-paw {
-  width: 230px;
-  height: 230px;
-
-  position: absolute;
-
-  right: 40px;
-  bottom: -45px;
-
-  color: var(--primary);
-
-  opacity: 0.15;
-}
-
-
-/* =========================================================
-   ESTADÍSTICAS ADMIN
-========================================================= */
-
-.stats-grid {
-  margin-top: 22px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 18px;
-}
-
-.stat-card {
-  min-width: 0;
-
-  padding: 22px;
-
-  border-radius: 15px;
-
-  background: var(--white);
-
-  display: flex;
-  align-items: center;
-
-  gap: 15px;
-
-  box-shadow: var(--shadow);
-}
-
-.stat-card h2 {
-  margin: 5px 0;
-
-  color: var(--dark);
-
-  font-size: 27px;
-}
-
-.stat-card span,
-.stat-card small {
-  color: var(--muted);
-}
-
-.stat-card span {
-  font-size: 13px;
-}
-
-.stat-card small {
-  font-size: 11px;
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-
-  min-width: 48px;
-
-  border-radius: 12px;
-
-  background: var(--cream);
-  color: var(--dark);
-
-  display: grid;
-  place-items: center;
-}
-
-
-/* =========================================================
-   ADMIN CLIENTES
-========================================================= */
-
-.clients-panel {
-  margin-top: 22px;
-
-  padding: 25px;
-
-  border-radius: 16px;
-
-  background: var(--white);
-
-  box-shadow: var(--shadow);
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 20px;
-}
-
-.panel-header h2 {
-  margin-bottom: 5px;
-
-  color: var(--dark);
-
-  font-size: 20px;
-}
-
-.panel-header p {
-  margin: 0;
-
-  color: var(--muted);
-
-  font-size: 13px;
-}
-
-.empty-state {
-  padding: 55px 20px;
-
-  text-align: center;
-
-  color: var(--muted);
-}
-
-.empty-state svg {
-  margin-bottom: 10px;
-
-  color: var(--primary);
-}
-
-.empty-state h3 {
-  margin-bottom: 7px;
-
-  color: var(--dark);
-}
-
-.client-list {
-  margin-top: 20px;
-}
-
-.client-row {
-  padding: 15px 5px;
-
-  border-top: 1px solid var(--cream);
-
-  display: flex;
-  align-items: center;
-
-  gap: 15px;
-}
-
-.client-row:hover {
-  background:
-    rgba(241, 240, 232, 0.45);
-}
-
-.client-avatar {
-  width: 43px;
-  height: 43px;
-
-  flex-shrink: 0;
-}
-
-.client-info {
-  flex: 1;
-
-  min-width: 0;
-}
-
-.client-info strong,
-.client-info span {
-  display: block;
-}
-
-.client-info strong {
-  color: var(--dark);
-}
-
-.client-info span {
-  margin-top: 4px;
-
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-.pet-count {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   REGISTRO DE CLIENTE ADMIN
-========================================================= */
-
-.register-page {
-  width: 100%;
-  min-height: 100vh;
-
-  padding: 40px 20px 70px;
-
-  background: var(--background);
-}
-
-.register-container {
-  width: 100%;
-  max-width: 1000px;
-
-  margin: auto;
-}
-
-.register-header {
-  margin-bottom: 10px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 20px;
-}
-
-.register-header h1 {
-  margin-bottom: 7px;
-
-  color: var(--dark);
-
-  font-size: 32px;
-}
-
-.register-header p {
-  margin: 0;
-
-  color: var(--muted);
-
-  line-height: 1.6;
-}
-
-.register-header > svg {
-  color: var(--primary);
-}
-
-.form-section {
-  margin-top: 20px;
-
-  padding: 27px;
-
-  border-radius: 16px;
-
-  background: var(--white);
-
-  box-shadow: var(--shadow);
-}
-
-.form-section > h2 {
-  margin-bottom: 20px;
-
-  color: var(--dark);
-
-  font-size: 19px;
-}
-
-.section-title {
-  margin-bottom: 15px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  color: var(--dark);
-}
-
-.section-title svg {
-  color: var(--primary);
-}
-
-.section-title h2 {
-  margin: 0;
-
-  font-size: 19px;
-}
-
-.pet-title {
-  justify-content: space-between;
-}
-
-.pet-title > div {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-}
-
-.form-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 5px 20px;
-}
-
-.pet-card {
-  margin-top: 20px;
-
-  padding: 22px;
-
-  border: 1px solid var(--cream);
-  border-radius: 13px;
-
-  background: var(--background);
-}
-
-.pet-card-header {
-  margin-bottom: 5px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pet-card-header strong {
-  color: var(--dark);
-
-  font-size: 15px;
-}
-
-.delete-button {
-  width: 36px;
-  height: 36px;
-
-  padding: 0;
-
-  border: none;
-  border-radius: 8px;
-
-  background: transparent;
-  color: var(--danger);
-
-  display: grid;
-  place-items: center;
-}
-
-.delete-button:hover {
-  background: var(--danger-light);
-}
-
-.save-button {
-  max-width: 350px;
-
-  margin-left: auto;
 }
 
 
@@ -1380,106 +878,6 @@ button.account-type-card:disabled {
   display: flex;
 
   background: var(--background);
-}
-
-.employee-sidebar {
-  width: 250px;
-  height: 100vh;
-
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  z-index: 100;
-
-  padding: 30px 18px;
-
-  display: flex;
-  flex-direction: column;
-
-  background:
-    linear-gradient(
-      180deg,
-      var(--primary),
-      var(--primary-dark)
-    );
-
-  color: var(--white);
-}
-
-.employee-logo {
-  padding: 0 8px;
-
-  margin-bottom: 45px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-}
-
-.employee-logo strong,
-.employee-logo span {
-  display: block;
-}
-
-.employee-logo strong {
-  font-size: 18px;
-}
-
-.employee-logo span {
-  margin-top: 3px;
-
-  font-size: 10px;
-
-  letter-spacing: 1px;
-
-  opacity: 0.8;
-}
-
-.employee-sidebar nav {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.employee-sidebar button {
-  width: 100%;
-
-  padding: 13px;
-
-  border: none;
-  border-radius: 10px;
-
-  background: transparent;
-  color: var(--white);
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  font-size: 14px;
-  font-weight: 500;
-
-  text-align: left;
-}
-
-.employee-sidebar button:hover {
-  background:
-    rgba(255, 255, 255, 0.15);
-}
-
-.employee-sidebar .employee-nav-active {
-  background:
-    rgba(255, 255, 255, 0.22);
-
-  font-weight: 600;
-}
-
-.employee-logout {
-  margin-top: auto;
 }
 
 .employee-content {
@@ -1633,12 +1031,16 @@ button.account-type-card:disabled {
   color: var(--dark);
 
   font-size: 34px;
+
+  letter-spacing: -1px;
 }
 
 .employee-welcome p {
   max-width: 550px;
 
   margin: 0;
+
+  color: var(--text);
 
   line-height: 1.7;
 }
@@ -1732,7 +1134,7 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   EMPLEADO CITAS
+   EMPLEADO PANEL DE CITAS
 ========================================================= */
 
 .employee-appointments {
@@ -1773,6 +1175,11 @@ button.account-type-card:disabled {
   font-size: 13px;
 }
 
+
+/* =========================================================
+   EMPLEADO CITAS
+========================================================= */
+
 .appointment-list {
   display: flex;
   flex-direction: column;
@@ -1806,22 +1213,24 @@ button.account-type-card:disabled {
   transform: translateY(-2px);
 
   box-shadow:
-    0 8px 20px rgba(23, 56, 74, 0.08);
+    0 8px 20px
+    rgba(23, 56, 74, 0.08);
 }
 
 .appointment-time {
-  min-width: 100px;
+  min-width: 105px;
 
   padding-right: 18px;
 
-  border-right: 1px solid var(--cream);
+  border-right:
+    1px solid var(--cream);
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  gap: 4px;
+  gap: 5px;
 
   color: var(--dark);
 }
@@ -1833,6 +1242,10 @@ button.account-type-card:disabled {
 .appointment-time strong,
 .appointment-time span {
   display: block;
+}
+
+.appointment-time strong {
+  font-size: 16px;
 }
 
 .appointment-time span {
@@ -1864,11 +1277,17 @@ button.account-type-card:disabled {
   font-size: 18px;
 }
 
-.appointment-heading div > span {
+.appointment-heading
+div > span {
   color: var(--muted);
 
   font-size: 12px;
 }
+
+
+/* =========================================================
+   SERVICIOS CITA
+========================================================= */
 
 .appointment-services {
   margin-top: 13px;
@@ -1895,6 +1314,11 @@ button.account-type-card:disabled {
   font-size: 11px;
   font-weight: 600;
 }
+
+
+/* =========================================================
+   INFORMACIÓN CITA
+========================================================= */
 
 .appointment-information {
   margin-top: 15px;
@@ -1967,7 +1391,7 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   EMPLEADO EMPTY / ERROR / LOADING
+   EMPLEADO EMPTY / LOADING / ERROR
 ========================================================= */
 
 .employee-empty {
@@ -1988,6 +1412,10 @@ button.account-type-card:disabled {
   margin: 5px 0 7px;
 
   color: var(--dark);
+}
+
+.employee-empty p {
+  margin-bottom: 0;
 }
 
 .employee-loading {
@@ -2059,7 +1487,8 @@ button.account-type-card:disabled {
 
   gap: 15px;
 
-  border-top: 1px solid var(--cream);
+  border-top:
+    1px solid var(--cream);
 }
 
 .payment-row:first-child {
@@ -2124,7 +1553,7 @@ button.account-type-card:disabled {
 
   inset: 0;
 
-  z-index: 1000;
+  z-index: 3000;
 
   padding: 25px;
 
@@ -2162,7 +1591,8 @@ button.account-type-card:disabled {
 
   gap: 20px;
 
-  border-bottom: 1px solid var(--cream);
+  border-bottom:
+    1px solid var(--cream);
 }
 
 .modal-header span {
@@ -2186,6 +1616,8 @@ button.account-type-card:disabled {
   width: 38px;
   height: 38px;
 
+  padding: 0;
+
   flex-shrink: 0;
 
   border: none;
@@ -2194,10 +1626,10 @@ button.account-type-card:disabled {
   background: var(--background);
   color: var(--dark);
 
-  font-size: 24px;
-
   display: grid;
   place-items: center;
+
+  font-size: 24px;
 }
 
 .modal-header button:hover {
@@ -2240,6 +1672,8 @@ button.account-type-card:disabled {
   color: var(--dark);
 
   font-size: 13px;
+
+  overflow-wrap: anywhere;
 }
 
 .modal-section {
@@ -2249,7 +1683,8 @@ button.account-type-card:disabled {
 .modal-section h3 {
   padding-bottom: 8px;
 
-  border-bottom: 1px solid var(--cream);
+  border-bottom:
+    1px solid var(--cream);
 
   color: var(--dark);
 
@@ -2274,7 +1709,8 @@ button.account-type-card:disabled {
 
   gap: 20px;
 
-  border-bottom: 1px solid var(--background);
+  border-bottom:
+    1px solid var(--background);
 
   font-size: 13px;
 }
@@ -2329,118 +1765,6 @@ button.account-type-card:disabled {
   background: var(--background);
 }
 
-
-/* =========================================================
-   CLIENTE SIDEBAR
-========================================================= */
-
-.client-sidebar {
-  width: 250px;
-  height: 100vh;
-
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  z-index: 100;
-
-  padding: 30px 18px;
-
-  display: flex;
-  flex-direction: column;
-
-  background:
-    linear-gradient(
-      180deg,
-      var(--primary),
-      var(--primary-dark)
-    );
-
-  color: var(--white);
-}
-
-.client-logo {
-  padding: 0 8px;
-
-  margin-bottom: 45px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-}
-
-.client-logo strong,
-.client-logo span {
-  display: block;
-}
-
-.client-logo strong {
-  font-size: 18px;
-}
-
-.client-logo span {
-  margin-top: 3px;
-
-  font-size: 10px;
-
-  letter-spacing: 1px;
-
-  opacity: 0.8;
-}
-
-.client-sidebar nav {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.client-sidebar button {
-  width: 100%;
-
-  padding: 13px;
-
-  border: none;
-  border-radius: 10px;
-
-  background: transparent;
-  color: var(--white);
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  text-align: left;
-
-  font-size: 14px;
-  font-weight: 500;
-
-  transition: background 0.2s ease;
-}
-
-.client-sidebar button:hover {
-  background:
-    rgba(255, 255, 255, 0.15);
-}
-
-.client-sidebar .client-nav-active {
-  background:
-    rgba(255, 255, 255, 0.22);
-
-  font-weight: 600;
-}
-
-.client-logout {
-  margin-top: auto;
-}
-
-
-/* =========================================================
-   CLIENTE CONTENIDO
-========================================================= */
-
 .client-content {
   width: calc(100% - 250px);
   min-height: 100vh;
@@ -2465,7 +1789,9 @@ button.account-type-card:disabled {
   gap: 20px;
 }
 
-.client-topbar > div:first-child > span {
+.client-topbar
+> div:first-child
+> span {
   color: var(--muted);
 
   font-size: 10px;
@@ -2600,6 +1926,8 @@ button.account-type-card:disabled {
   max-width: 550px;
 
   margin: 0;
+
+  color: var(--text);
 
   line-height: 1.7;
 }
@@ -2877,7 +2205,8 @@ button.account-type-card:disabled {
   transform: translateY(-2px);
 
   box-shadow:
-    0 8px 20px rgba(23, 56, 74, 0.08);
+    0 8px 20px
+    rgba(23, 56, 74, 0.08);
 }
 
 .client-pet-icon {
@@ -3034,7 +2363,8 @@ button.account-type-card:disabled {
   transform: translateY(-2px);
 
   box-shadow:
-    0 8px 20px rgba(23, 56, 74, 0.08);
+    0 8px 20px
+    rgba(23, 56, 74, 0.08);
 }
 
 .client-appointment-date {
@@ -3042,7 +2372,8 @@ button.account-type-card:disabled {
 
   padding-right: 20px;
 
-  border-right: 1px solid var(--cream);
+  border-right:
+    1px solid var(--cream);
 
   display: flex;
   align-items: center;
@@ -3097,7 +2428,8 @@ button.account-type-card:disabled {
   color: var(--dark);
 }
 
-.client-appointment-heading div > span {
+.client-appointment-heading
+div > span {
   color: var(--muted);
 
   font-size: 12px;
@@ -3206,7 +2538,7 @@ button.account-type-card:disabled {
 
   inset: 0;
 
-  z-index: 1500;
+  z-index: 3000;
 
   padding: 25px;
 
@@ -3244,10 +2576,13 @@ button.account-type-card:disabled {
 
   gap: 20px;
 
-  border-bottom: 1px solid var(--cream);
+  border-bottom:
+    1px solid var(--cream);
 }
 
-.client-modal-header > div > span {
+.client-modal-header
+> div
+> span {
   color: var(--muted);
 
   font-size: 10px;
@@ -3264,7 +2599,8 @@ button.account-type-card:disabled {
   font-size: 25px;
 }
 
-.client-modal-header > button {
+.client-modal-header
+> button {
   width: 38px;
   height: 38px;
 
@@ -3282,7 +2618,8 @@ button.account-type-card:disabled {
   place-items: center;
 }
 
-.client-modal-header > button:hover {
+.client-modal-header
+> button:hover {
   background: var(--cream);
 }
 
@@ -3308,7 +2645,7 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   CLIENTE DETALLE MASCOTA
+   DETALLE MASCOTA
 ========================================================= */
 
 .client-pet-detail-icon {
@@ -3369,7 +2706,8 @@ button.account-type-card:disabled {
 .client-detail-section h3 {
   padding-bottom: 8px;
 
-  border-bottom: 1px solid var(--cream);
+  border-bottom:
+    1px solid var(--cream);
 
   color: var(--dark);
 
@@ -3388,11 +2726,25 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   RESPONSIVE 1100
+   MOBILE MENU
+   mobileMenu.jsx
+========================================================= */
+
+.mobile-menu-button {
+  display: none;
+}
+
+.mobile-menu-overlay {
+  display: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE - 1100PX
 ========================================================= */
 
 @media (max-width: 1100px) {
-  .stats-grid,
+
   .employee-stats {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
@@ -3417,10 +2769,13 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   RESPONSIVE 900
+   RESPONSIVE - 900PX
 ========================================================= */
 
 @media (max-width: 900px) {
+
+  /* LOGIN */
+
   .login-page {
     grid-template-columns: 1fr;
   }
@@ -3436,6 +2791,9 @@ button.account-type-card:disabled {
     padding: 60px 0;
   }
 
+
+  /* CLIENTE */
+
   .client-stats {
     grid-template-columns: 1fr;
   }
@@ -3443,44 +2801,14 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   RESPONSIVE 800
+   RESPONSIVE - TABLET
 ========================================================= */
 
-@media (max-width: 800px) {
-  /* ADMIN */
+@media (max-width: 800px) and (min-width: 601px) {
 
-  .sidebar {
-    width: 75px;
-
-    padding: 25px 10px;
-  }
-
-  .sidebar-logo {
-    padding: 0;
-
-    justify-content: center;
-  }
-
-  .sidebar-logo div {
-    display: none;
-  }
-
-  .sidebar button {
-    justify-content: center;
-
-    font-size: 0;
-  }
-
-  .dashboard-content {
-    width: calc(100% - 75px);
-
-    margin-left: 75px;
-
-    padding: 0 20px 40px;
-  }
-
-
-  /* EMPLEADO */
+  /* =====================================================
+     EMPLEADO
+  ===================================================== */
 
   .employee-sidebar {
     width: 75px;
@@ -3504,16 +2832,25 @@ button.account-type-card:disabled {
     font-size: 0;
   }
 
+  .employee-sidebar button svg {
+    width: 21px;
+    height: 21px;
+  }
+
   .employee-content {
-    width: calc(100% - 75px);
+    width:
+      calc(100% - 75px);
 
     margin-left: 75px;
 
-    padding: 0 20px 40px;
+    padding:
+      0 20px 40px;
   }
 
 
-  /* CLIENTE */
+  /* =====================================================
+     CLIENTE
+  ===================================================== */
 
   .client-sidebar {
     width: 75px;
@@ -3537,21 +2874,29 @@ button.account-type-card:disabled {
     font-size: 0;
   }
 
+  .client-sidebar button svg {
+    width: 21px;
+    height: 21px;
+  }
+
   .client-content {
-    width: calc(100% - 75px);
+    width:
+      calc(100% - 75px);
 
     margin-left: 75px;
 
-    padding: 0 20px 40px;
+    padding:
+      0 20px 40px;
   }
 }
 
 
 /* =========================================================
-   RESPONSIVE 700
+   RESPONSIVE - 700PX
 ========================================================= */
 
 @media (max-width: 700px) {
+
   .employee-topbar-actions,
   .client-topbar-actions {
     gap: 10px;
@@ -3596,11 +2941,14 @@ button.account-type-card:disabled {
 
 
 /* =========================================================
-   RESPONSIVE 600
+   RESPONSIVE - MÓVIL
 ========================================================= */
 
 @media (max-width: 600px) {
-  /* LOGIN */
+
+  /* =====================================================
+     LOGIN
+  ===================================================== */
 
   .login-card,
   .register-user-card {
@@ -3625,66 +2973,207 @@ button.account-type-card:disabled {
   }
 
 
-  /* ADMIN */
+  /* =====================================================
+     BOTÓN FLOTANTE
+  ===================================================== */
 
-  .sidebar {
-    display: none;
+  .mobile-menu-button {
+    width: 54px;
+    height: 54px;
+
+    padding: 0;
+
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    z-index: 2200;
+
+    display: grid;
+    place-items: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: var(--dark);
+    color: var(--white);
+
+    box-shadow:
+      0 8px 25px
+      rgba(23, 56, 74, 0.35);
+
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
-  .dashboard-content {
-    width: 100%;
+  .mobile-menu-button:hover {
+    background: var(--primary-dark);
 
-    margin-left: 0;
+    transform:
+      translateY(-2px);
 
-    padding: 0 15px 30px;
+    box-shadow:
+      0 10px 30px
+      rgba(23, 56, 74, 0.4);
   }
 
-  .topbar {
-    min-height: 75px;
-
-    justify-content: flex-end;
-  }
-
-  .topbar > div:first-child {
-    display: none;
-  }
-
-  .welcome-card {
-    min-height: auto;
-
-    padding: 25px;
-  }
-
-  .welcome-card h1 {
-    font-size: 27px;
-  }
-
-  .welcome-paw {
-    display: none;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .panel-header {
-    align-items: flex-start;
-    flex-direction: column;
+  .mobile-menu-button:active {
+    transform: scale(0.95);
   }
 
 
-  /* EMPLEADO */
+  /* =====================================================
+     OVERLAY
+  ===================================================== */
+
+  .mobile-menu-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1700;
+
+    display: block;
+
+    background:
+      rgba(23, 56, 74, 0.4);
+
+    backdrop-filter: blur(2px);
+  }
+
+
+  /* =====================================================
+     SIDEBAR EMPLEADO MÓVIL
+  ===================================================== */
 
   .employee-sidebar {
-    display: none;
+    width: min(280px, 82vw);
+    height: 100dvh;
+
+    display: flex;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 1800;
+
+    padding: 30px 18px;
+
+    transform:
+      translateX(-105%);
+
+    transition:
+      transform 0.3s ease;
+
+    box-shadow:
+      10px 0 30px
+      rgba(23, 56, 74, 0.25);
   }
+
+  .employee-sidebar.employee-sidebar-open {
+    transform:
+      translateX(0);
+  }
+
+  .employee-sidebar
+  .employee-logo {
+    justify-content: flex-start;
+
+    padding: 0 8px;
+  }
+
+  .employee-sidebar
+  .employee-logo div {
+    display: block;
+  }
+
+  .employee-sidebar button {
+    justify-content: flex-start;
+
+    font-size: 14px;
+  }
+
+  .employee-sidebar button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+
+  /* =====================================================
+     SIDEBAR CLIENTE MÓVIL
+  ===================================================== */
+
+  .client-sidebar {
+    width: min(280px, 82vw);
+    height: 100dvh;
+
+    display: flex;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 1800;
+
+    padding: 30px 18px;
+
+    transform:
+      translateX(-105%);
+
+    transition:
+      transform 0.3s ease;
+
+    box-shadow:
+      10px 0 30px
+      rgba(23, 56, 74, 0.25);
+  }
+
+  .client-sidebar.client-sidebar-open {
+    transform:
+      translateX(0);
+  }
+
+  .client-sidebar
+  .client-logo {
+    justify-content: flex-start;
+
+    padding: 0 8px;
+  }
+
+  .client-sidebar
+  .client-logo div {
+    display: block;
+  }
+
+  .client-sidebar button {
+    justify-content: flex-start;
+
+    font-size: 14px;
+  }
+
+  .client-sidebar button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+
+  /* =====================================================
+     CONTENIDO EMPLEADO
+  ===================================================== */
 
   .employee-content {
     width: 100%;
 
     margin-left: 0;
 
-    padding: 0 15px 30px;
+    padding:
+      0 15px 95px;
   }
 
   .employee-topbar {
@@ -3693,12 +3182,15 @@ button.account-type-card:disabled {
     justify-content: flex-end;
   }
 
-  .employee-topbar > div:first-child {
+  .employee-topbar
+  > div:first-child {
     display: none;
   }
 
   .employee-stats {
     grid-template-columns: 1fr;
+
+    gap: 12px;
   }
 
   .employee-welcome {
@@ -3717,6 +3209,7 @@ button.account-type-card:disabled {
 
   .employee-panel-title {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
@@ -3731,7 +3224,9 @@ button.account-type-card:disabled {
     padding-bottom: 12px;
 
     border-right: none;
-    border-bottom: 1px solid var(--cream);
+
+    border-bottom:
+      1px solid var(--cream);
 
     align-items: flex-start;
   }
@@ -3745,18 +3240,17 @@ button.account-type-card:disabled {
   }
 
 
-  /* CLIENTE */
-
-  .client-sidebar {
-    display: none;
-  }
+  /* =====================================================
+     CONTENIDO CLIENTE
+  ===================================================== */
 
   .client-content {
     width: 100%;
 
     margin-left: 0;
 
-    padding: 0 15px 30px;
+    padding:
+      0 15px 95px;
   }
 
   .client-topbar {
@@ -3765,12 +3259,15 @@ button.account-type-card:disabled {
     justify-content: flex-end;
   }
 
-  .client-topbar > div:first-child {
+  .client-topbar
+  > div:first-child {
     display: none;
   }
 
   .client-stats {
     grid-template-columns: 1fr;
+
+    gap: 12px;
   }
 
   .client-welcome {
@@ -3789,12 +3286,24 @@ button.account-type-card:disabled {
 
   .client-profile-warning {
     align-items: flex-start;
+
     flex-direction: column;
+  }
+
+  .client-panel {
+    padding: 20px;
   }
 
   .client-panel-header {
     align-items: flex-start;
+
     flex-direction: column;
+  }
+
+  .client-add-button {
+    width: 100%;
+
+    justify-content: center;
   }
 
   .client-pets-grid {
@@ -3812,7 +3321,9 @@ button.account-type-card:disabled {
     padding-bottom: 12px;
 
     border-right: none;
-    border-bottom: 1px solid var(--cream);
+
+    border-bottom:
+      1px solid var(--cream);
   }
 
   .client-appointment-heading {
@@ -3825,52 +3336,10 @@ button.account-type-card:disabled {
   }
 
 
-  /* REGISTRO CLIENTE ADMIN */
+  /* =====================================================
+     MODALES
+  ===================================================== */
 
-  .register-page {
-    padding: 25px 15px 50px;
-  }
-
-  .register-header {
-    align-items: flex-start;
-  }
-
-  .register-header h1 {
-    font-size: 26px;
-  }
-
-  .register-header > svg {
-    display: none;
-  }
-
-  .form-section {
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-
-    gap: 0;
-  }
-
-  .pet-title {
-    align-items: flex-start;
-    flex-direction: column;
-
-    gap: 15px;
-  }
-
-  .save-button {
-    max-width: 100%;
-  }
-}
-
-
-/* =========================================================
-   RESPONSIVE 450
-========================================================= */
-
-@media (max-width: 450px) {
   .appointment-modal-background,
   .client-modal-background {
     padding: 10px;
@@ -3878,24 +3347,111 @@ button.account-type-card:disabled {
 
   .appointment-modal,
   .client-modal {
+    width: 100%;
+
+    max-height: 94dvh;
+
     padding: 20px;
+
+    border-radius: 15px;
   }
 
   .modal-grid {
     grid-template-columns: 1fr;
   }
 
-  .modal-service-row {
-    gap: 10px;
+  .appointment-payment-summary {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* =====================================================
+     PAGOS
+  ===================================================== */
+
+  .payment-row {
+    padding: 15px 0;
+
+    grid-template-columns:
+      42px 1fr;
+
+    gap: 12px;
+  }
+
+  .payment-method {
+    display: block;
+
+    grid-column: 2;
+  }
+
+  .payment-amount {
+    grid-column: 2;
+
+    text-align: left;
   }
 }
 
 
 /* =========================================================
-   RESPONSIVE 380
+   RESPONSIVE - 450PX
+========================================================= */
+
+@media (max-width: 450px) {
+
+  .employee-user > div:last-child,
+  .client-user > div:last-child {
+    display: none;
+  }
+
+  .employee-topbar-actions,
+  .client-topbar-actions {
+    gap: 8px;
+  }
+
+  .employee-welcome,
+  .client-welcome {
+    padding: 22px;
+  }
+
+  .employee-welcome h1,
+  .client-welcome h1 {
+    font-size: 25px;
+  }
+
+  .employee-appointments,
+  .client-panel {
+    padding: 18px;
+  }
+
+  .appointment-card,
+  .client-appointment-card {
+    padding: 16px;
+  }
+
+  .client-pet-card {
+    padding: 17px;
+  }
+
+  .client-pet-information {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-menu-button {
+    width: 50px;
+    height: 50px;
+
+    right: 15px;
+    bottom: 15px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - 380PX
 ========================================================= */
 
 @media (max-width: 380px) {
+
   .login-card,
   .register-user-card {
     width: 92%;
@@ -3909,9 +3465,14 @@ button.account-type-card:disabled {
     flex-direction: column;
   }
 
-  .stat-card,
   .employee-stat-card,
   .client-stat-card {
     padding: 18px;
+  }
+
+  .employee-content,
+  .client-content {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }

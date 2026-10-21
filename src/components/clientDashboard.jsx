@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   AlertCircle,
   CalendarDays,
@@ -19,12 +20,25 @@ import {
 
 import { supabase } from "../lib/supabase";
 
-function ClientDashboard({ user, onLogout }) {
-  const [client, setClient] = useState(null);
-  const [pets, setPets] = useState([]);
-  const [appointments, setAppointments] = useState([]);
+import MobileMenu from "./mobileMenu";
 
-  const [view, setView] = useState("inicio");
+
+function ClientDashboard({ user, onLogout }) {
+  // =====================================================
+  // ESTADOS
+  // =====================================================
+
+  const [client, setClient] =
+    useState(null);
+
+  const [pets, setPets] =
+    useState([]);
+
+  const [appointments, setAppointments] =
+    useState([]);
+
+  const [view, setView] =
+    useState("inicio");
 
   const [showProfileModal, setShowProfileModal] =
     useState(false);
@@ -35,11 +49,15 @@ function ClientDashboard({ user, onLogout }) {
   const [selectedPet, setSelectedPet] =
     useState(null);
 
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
+
 
   // =====================================================
   // CARGAR INFORMACIÓN
@@ -52,6 +70,7 @@ function ClientDashboard({ user, onLogout }) {
       );
 
       setLoading(false);
+
       return;
     }
 
@@ -59,9 +78,9 @@ function ClientDashboard({ user, onLogout }) {
     setError("");
 
     try {
-      // =============================================
+      // =================================================
       // PERFIL DEL CLIENTE
-      // =============================================
+      // =================================================
 
       const {
         data: clientData,
@@ -87,22 +106,30 @@ function ClientDashboard({ user, onLogout }) {
         )
         .maybeSingle();
 
+
       if (clientError) {
         throw clientError;
       }
 
+
       setClient(clientData);
 
-      // Si todavía no creó su perfil
+
+      // =================================================
+      // SI NO EXISTE PERFIL DE CLIENTE
+      // =================================================
+
       if (!clientData) {
         setPets([]);
         setAppointments([]);
+
         return;
       }
 
-      // =============================================
-      // MASCOTAS
-      // =============================================
+
+      // =================================================
+      // CARGAR MASCOTAS
+      // =================================================
 
       const {
         data: petsData,
@@ -133,15 +160,20 @@ function ClientDashboard({ user, onLogout }) {
           }
         );
 
+
       if (petsError) {
         throw petsError;
       }
 
-      setPets(petsData || []);
 
-      // =============================================
-      // CITAS DEL CLIENTE
-      // =============================================
+      setPets(
+        petsData || []
+      );
+
+
+      // =================================================
+      // CARGAR CITAS
+      // =================================================
 
       const {
         data: appointmentsData,
@@ -196,9 +228,11 @@ function ClientDashboard({ user, onLogout }) {
           }
         );
 
+
       if (appointmentsError) {
         throw appointmentsError;
       }
+
 
       setAppointments(
         appointmentsData || []
@@ -219,18 +253,29 @@ function ClientDashboard({ user, onLogout }) {
     }
   };
 
+
+  // =====================================================
+  // CARGAR AL ENTRAR
+  // =====================================================
+
   useEffect(() => {
     loadData();
   }, [user?.id_usuario]);
 
+
   // =====================================================
-  // CITAS PRÓXIMAS
+  // FECHA ACTUAL
   // =====================================================
 
   const today =
     new Date()
       .toISOString()
       .split("T")[0];
+
+
+  // =====================================================
+  // PRÓXIMAS CITAS
+  // =====================================================
 
   const upcomingAppointments =
     useMemo(() => {
@@ -241,6 +286,11 @@ function ClientDashboard({ user, onLogout }) {
       );
     }, [appointments, today]);
 
+
+  // =====================================================
+  // CITAS COMPLETADAS
+  // =====================================================
+
   const completedAppointments =
     appointments.filter(
       (appointment) =>
@@ -248,18 +298,68 @@ function ClientDashboard({ user, onLogout }) {
         "COMPLETADA"
     ).length;
 
+
   // =====================================================
-  // LOGOUT
+  // CAMBIAR VISTA
+  // =====================================================
+
+  const changeView = (newView) => {
+    setView(newView);
+
+    // Cerrar menú móvil
+    setMobileMenuOpen(false);
+  };
+
+
+  // =====================================================
+  // ABRIR PERFIL
+  // =====================================================
+
+  const openProfile = () => {
+    setShowProfileModal(true);
+
+    setMobileMenuOpen(false);
+  };
+
+
+  // =====================================================
+  // REGISTRAR MASCOTA
+  // =====================================================
+
+  const openPetRegistration = () => {
+    setMobileMenuOpen(false);
+
+    // Primero necesita perfil de cliente
+    if (!client) {
+      setShowProfileModal(true);
+
+      return;
+    }
+
+    setSelectedPet(null);
+
+    setShowPetModal(true);
+  };
+
+
+  // =====================================================
+  // CERRAR SESIÓN
   // =====================================================
 
   const handleLogout = async () => {
     try {
-      const { error } =
+      setMobileMenuOpen(false);
+
+      const {
+        error: logoutError,
+      } =
         await supabase.auth.signOut();
 
-      if (error) {
-        throw error;
+
+      if (logoutError) {
+        throw logoutError;
       }
+
 
       onLogout();
 
@@ -271,19 +371,6 @@ function ClientDashboard({ user, onLogout }) {
     }
   };
 
-  // =====================================================
-  // REGISTRAR MASCOTA
-  // =====================================================
-
-  const openPetRegistration = () => {
-    if (!client) {
-      setShowProfileModal(true);
-      return;
-    }
-
-    setSelectedPet(null);
-    setShowPetModal(true);
-  };
 
   // =====================================================
   // LOADING
@@ -292,6 +379,7 @@ function ClientDashboard({ user, onLogout }) {
   if (loading) {
     return (
       <div className="client-loading">
+
         <PawPrint size={50} />
 
         <h2>
@@ -301,9 +389,15 @@ function ClientDashboard({ user, onLogout }) {
         <p>
           Preparando tu información.
         </p>
+
       </div>
     );
   }
+
+
+  // =====================================================
+  // INTERFAZ
+  // =====================================================
 
   return (
     <div className="client-dashboard">
@@ -312,9 +406,18 @@ function ClientDashboard({ user, onLogout }) {
           SIDEBAR
       ================================================== */}
 
-      <aside className="client-sidebar">
+      <aside
+        className={
+          mobileMenuOpen
+            ? "client-sidebar client-sidebar-open"
+            : "client-sidebar"
+        }
+      >
+
+        {/* LOGO */}
 
         <div className="client-logo">
+
           <PawPrint size={35} />
 
           <div>
@@ -326,18 +429,25 @@ function ClientDashboard({ user, onLogout }) {
               PANEL DE CLIENTE
             </span>
           </div>
+
         </div>
+
+
+        {/* NAVEGACIÓN */}
 
         <nav>
 
+          {/* INICIO */}
+
           <button
+            type="button"
             className={
               view === "inicio"
                 ? "client-nav-active"
                 : ""
             }
             onClick={() =>
-              setView("inicio")
+              changeView("inicio")
             }
           >
             <PawPrint size={20} />
@@ -345,14 +455,18 @@ function ClientDashboard({ user, onLogout }) {
             Inicio
           </button>
 
+
+          {/* MASCOTAS */}
+
           <button
+            type="button"
             className={
               view === "mascotas"
                 ? "client-nav-active"
                 : ""
             }
             onClick={() =>
-              setView("mascotas")
+              changeView("mascotas")
             }
           >
             <Dog size={20} />
@@ -360,14 +474,18 @@ function ClientDashboard({ user, onLogout }) {
             Mis mascotas
           </button>
 
+
+          {/* CITAS */}
+
           <button
+            type="button"
             className={
               view === "citas"
                 ? "client-nav-active"
                 : ""
             }
             onClick={() =>
-              setView("citas")
+              changeView("citas")
             }
           >
             <CalendarDays size={20} />
@@ -375,10 +493,12 @@ function ClientDashboard({ user, onLogout }) {
             Mis citas
           </button>
 
+
+          {/* PERFIL */}
+
           <button
-            onClick={() =>
-              setShowProfileModal(true)
-            }
+            type="button"
+            onClick={openProfile}
           >
             <User size={20} />
 
@@ -387,7 +507,11 @@ function ClientDashboard({ user, onLogout }) {
 
         </nav>
 
+
+        {/* CERRAR SESIÓN */}
+
         <button
+          type="button"
           className="client-logout"
           onClick={handleLogout}
         >
@@ -398,13 +522,35 @@ function ClientDashboard({ user, onLogout }) {
 
       </aside>
 
+
+      {/* =================================================
+          MENÚ FLOTANTE PARA MÓVIL
+      ================================================== */}
+
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+
+        onToggle={() =>
+          setMobileMenuOpen(
+            (current) => !current
+          )
+        }
+
+        onClose={() =>
+          setMobileMenuOpen(false)
+        }
+      />
+
+
       {/* =================================================
           CONTENIDO
       ================================================== */}
 
       <main className="client-content">
 
-        {/* TOPBAR */}
+        {/* =================================================
+            TOPBAR
+        ================================================== */}
 
         <header className="client-topbar">
 
@@ -418,9 +564,13 @@ function ClientDashboard({ user, onLogout }) {
             </h2>
           </div>
 
+
           <div className="client-topbar-actions">
 
+            {/* ACTUALIZAR */}
+
             <button
+              type="button"
               className="client-refresh"
               onClick={loadData}
             >
@@ -429,15 +579,22 @@ function ClientDashboard({ user, onLogout }) {
               Actualizar
             </button>
 
+
+            {/* USUARIO */}
+
             <div className="client-user">
 
               <div className="client-user-avatar">
+
                 {user?.nombre
                   ?.charAt(0)
                   .toUpperCase() || "C"}
+
               </div>
 
+
               <div>
+
                 <strong>
                   {user?.nombre ||
                     "Cliente"}
@@ -446,6 +603,7 @@ function ClientDashboard({ user, onLogout }) {
                 <span>
                   Cliente
                 </span>
+
               </div>
 
             </div>
@@ -454,15 +612,21 @@ function ClientDashboard({ user, onLogout }) {
 
         </header>
 
-        {/* ERROR */}
+
+        {/* =================================================
+            ERROR
+        ================================================== */}
 
         {error && (
           <div className="client-error">
+
             <AlertCircle size={20} />
 
             {error}
+
           </div>
         )}
+
 
         {/* =================================================
             INICIO
@@ -471,12 +635,16 @@ function ClientDashboard({ user, onLogout }) {
         {view === "inicio" && (
           <>
 
+            {/* BIENVENIDA */}
+
             <section className="client-welcome">
 
               <div>
+
                 <span className="client-welcome-label">
                   BIENVENIDO A CAN WASH
                 </span>
+
 
                 <h1>
                   ¡Hola,{" "}
@@ -484,13 +652,16 @@ function ClientDashboard({ user, onLogout }) {
                     "Cliente"}!
                 </h1>
 
+
                 <p>
                   Registra a tus mascotas y
                   consulta la información de
                   sus próximos servicios.
                 </p>
 
+
                 <button
+                  type="button"
                   className="client-main-button"
                   onClick={
                     openPetRegistration
@@ -500,7 +671,9 @@ function ClientDashboard({ user, onLogout }) {
 
                   Registrar mascota
                 </button>
+
               </div>
+
 
               <PawPrint
                 className="client-welcome-paw"
@@ -508,7 +681,10 @@ function ClientDashboard({ user, onLogout }) {
 
             </section>
 
-            {/* ESTADÍSTICAS */}
+
+            {/* =================================================
+                ESTADÍSTICAS
+            ================================================== */}
 
             <section className="client-stats">
 
@@ -519,8 +695,11 @@ function ClientDashboard({ user, onLogout }) {
                 text="Mascotas registradas"
               />
 
+
               <ClientStat
-                icon={<CalendarDays />}
+                icon={
+                  <CalendarDays />
+                }
                 title="Próximas citas"
                 value={
                   upcomingAppointments.length
@@ -528,8 +707,11 @@ function ClientDashboard({ user, onLogout }) {
                 text="Servicios programados"
               />
 
+
               <ClientStat
-                icon={<CheckCircle2 />}
+                icon={
+                  <CheckCircle2 />
+                }
                 title="Servicios realizados"
                 value={
                   completedAppointments
@@ -539,14 +721,19 @@ function ClientDashboard({ user, onLogout }) {
 
             </section>
 
-            {/* PERFIL INCOMPLETO */}
+
+            {/* =================================================
+                PERFIL INCOMPLETO
+            ================================================== */}
 
             {!client && (
               <section className="client-profile-warning">
 
                 <AlertCircle size={25} />
 
+
                 <div>
+
                   <h3>
                     Completa tu perfil
                   </h3>
@@ -557,11 +744,14 @@ function ClientDashboard({ user, onLogout }) {
                     teléfono, colonia y
                     dirección.
                   </p>
+
                 </div>
 
+
                 <button
-                  onClick={() =>
-                    setShowProfileModal(true)
+                  type="button"
+                  onClick={
+                    openProfile
                   }
                 >
                   Completar perfil
@@ -570,19 +760,33 @@ function ClientDashboard({ user, onLogout }) {
               </section>
             )}
 
+
+            {/* =================================================
+                MASCOTAS
+            ================================================== */}
+
             <PetSection
               pets={pets}
+
               onAdd={
                 openPetRegistration
               }
+
               onSelectPet={
                 setSelectedPet
               }
             />
 
+
+            {/* =================================================
+                PRÓXIMAS CITAS
+            ================================================== */}
+
             {upcomingAppointments.length >
               0 && (
               <AppointmentsSection
+                title="Próximas citas"
+
                 appointments={
                   upcomingAppointments
                 }
@@ -592,28 +796,34 @@ function ClientDashboard({ user, onLogout }) {
           </>
         )}
 
+
         {/* =================================================
-            MASCOTAS
+            VISTA MASCOTAS
         ================================================== */}
 
         {view === "mascotas" && (
           <PetSection
             pets={pets}
+
             onAdd={
               openPetRegistration
             }
+
             onSelectPet={
               setSelectedPet
             }
           />
         )}
 
+
         {/* =================================================
-            CITAS
+            VISTA CITAS
         ================================================== */}
 
         {view === "citas" && (
           <AppointmentsSection
+            title="Mis citas"
+
             appointments={
               appointments
             }
@@ -622,17 +832,21 @@ function ClientDashboard({ user, onLogout }) {
 
       </main>
 
+
       {/* =================================================
-          PERFIL
+          MODAL PERFIL
       ================================================== */}
 
       {showProfileModal && (
         <ProfileModal
           user={user}
+
           client={client}
+
           onClose={() =>
             setShowProfileModal(false)
           }
+
           onSaved={() => {
             setShowProfileModal(false);
 
@@ -641,16 +855,19 @@ function ClientDashboard({ user, onLogout }) {
         />
       )}
 
+
       {/* =================================================
-          REGISTRAR MASCOTA
+          MODAL REGISTRAR MASCOTA
       ================================================== */}
 
       {showPetModal && client && (
         <PetModal
           client={client}
+
           onClose={() =>
             setShowPetModal(false)
           }
+
           onSaved={() => {
             setShowPetModal(false);
 
@@ -659,13 +876,15 @@ function ClientDashboard({ user, onLogout }) {
         />
       )}
 
+
       {/* =================================================
-          DETALLE MASCOTA
+          MODAL DETALLE MASCOTA
       ================================================== */}
 
       {selectedPet && (
         <PetDetailsModal
           pet={selectedPet}
+
           onClose={() =>
             setSelectedPet(null)
           }
@@ -675,6 +894,7 @@ function ClientDashboard({ user, onLogout }) {
     </div>
   );
 }
+
 
 /* =========================================================
    ESTADÍSTICA
@@ -693,7 +913,9 @@ function ClientStat({
         {icon}
       </div>
 
+
       <div>
+
         <span>
           {title}
         </span>
@@ -705,14 +927,16 @@ function ClientStat({
         <small>
           {text}
         </small>
+
       </div>
 
     </article>
   );
 }
 
+
 /* =========================================================
-   MASCOTAS
+   SECCIÓN DE MASCOTAS
 ========================================================= */
 
 function PetSection({
@@ -726,6 +950,7 @@ function PetSection({
       <div className="client-panel-header">
 
         <div>
+
           <h2>
             Mis mascotas
           </h2>
@@ -734,9 +959,12 @@ function PetSection({
             Mascotas registradas para
             recibir servicios de Can Wash.
           </p>
+
         </div>
 
+
         <button
+          type="button"
           className="client-add-button"
           onClick={onAdd}
         >
@@ -747,7 +975,9 @@ function PetSection({
 
       </div>
 
+
       {pets.length === 0 ? (
+
         <div className="client-empty">
 
           <PawPrint size={45} />
@@ -762,10 +992,13 @@ function PetSection({
           </p>
 
         </div>
+
       ) : (
+
         <div className="client-pets-grid">
 
           {pets.map((pet) => (
+
             <article
               key={pet.id_mascota}
               className="client-pet-card"
@@ -774,17 +1007,25 @@ function PetSection({
               }
             >
 
+              {/* ICONO */}
+
               <div className="client-pet-icon">
+
                 {pet.especie === "GATO" ? (
                   <PawPrint size={30} />
                 ) : (
                   <Dog size={30} />
                 )}
+
               </div>
+
+
+              {/* NOMBRE */}
 
               <div className="client-pet-header">
 
                 <div>
+
                   <h3>
                     {pet.nombre}
                   </h3>
@@ -792,13 +1033,18 @@ function PetSection({
                   <span>
                     {pet.especie}
                   </span>
+
                 </div>
 
               </div>
 
+
+              {/* INFORMACIÓN */}
+
               <div className="client-pet-information">
 
                 <div>
+
                   <span>
                     Raza
                   </span>
@@ -807,9 +1053,12 @@ function PetSection({
                     {pet.raza ||
                       "Sin especificar"}
                   </strong>
+
                 </div>
 
+
                 <div>
+
                   <span>
                     Tamaño
                   </span>
@@ -818,10 +1067,13 @@ function PetSection({
                     {pet.tamano ||
                       "Sin especificar"}
                   </strong>
+
                 </div>
+
 
                 {pet.peso_kg && (
                   <div>
+
                     <span>
                       Peso
                     </span>
@@ -829,10 +1081,14 @@ function PetSection({
                     <strong>
                       {pet.peso_kg} kg
                     </strong>
+
                   </div>
                 )}
 
               </div>
+
+
+              {/* PADECIMIENTOS */}
 
               {pet.padecimientos && (
                 <div className="client-pet-warning">
@@ -849,6 +1105,7 @@ function PetSection({
               )}
 
             </article>
+
           ))}
 
         </div>
@@ -858,12 +1115,14 @@ function PetSection({
   );
 }
 
+
 /* =========================================================
    CITAS
 ========================================================= */
 
 function AppointmentsSection({
   appointments,
+  title = "Mis citas",
 }) {
   return (
     <section className="client-panel">
@@ -871,19 +1130,23 @@ function AppointmentsSection({
       <div className="client-panel-header">
 
         <div>
+
           <h2>
-            Mis citas
+            {title}
           </h2>
 
           <p>
             Consulta los servicios
             programados para tus mascotas.
           </p>
+
         </div>
 
       </div>
 
+
       {appointments.length === 0 ? (
+
         <div className="client-empty">
 
           <CalendarDays size={45} />
@@ -898,11 +1161,14 @@ function AppointmentsSection({
           </p>
 
         </div>
+
       ) : (
+
         <div className="client-appointments-list">
 
           {appointments.map(
             (appointment) => (
+
               <article
                 key={
                   appointment.id_cita
@@ -910,37 +1176,47 @@ function AppointmentsSection({
                 className="client-appointment-card"
               >
 
+                {/* FECHA */}
+
                 <div className="client-appointment-date">
 
                   <CalendarDays
                     size={20}
                   />
 
+
                   <div>
+
                     <strong>
                       {formatDate(
                         appointment.fecha
                       )}
                     </strong>
 
+
                     <span>
-                      <Clock
-                        size={13}
-                      />
+
+                      <Clock size={13} />
 
                       {formatTime(
                         appointment.hora
                       )}
+
                     </span>
+
                   </div>
 
                 </div>
+
+
+                {/* INFORMACIÓN */}
 
                 <div className="client-appointment-main">
 
                   <div className="client-appointment-heading">
 
                     <div>
+
                       <h3>
                         {appointment
                           .mascotas
@@ -954,9 +1230,12 @@ function AppointmentsSection({
                           ?.raza ||
                           appointment
                             .mascotas
-                            ?.especie}
+                            ?.especie ||
+                          "Sin información"}
                       </span>
+
                     </div>
+
 
                     <StatusBadge
                       status={
@@ -966,16 +1245,21 @@ function AppointmentsSection({
 
                   </div>
 
+
+                  {/* SERVICIOS */}
+
                   <div className="client-appointment-services">
 
                     {appointment
                       .detalle_cita
                       ?.map((detail) => (
+
                         <span
                           key={
                             detail.id_detalle
                           }
                         >
+
                           <Scissors
                             size={14}
                           />
@@ -984,21 +1268,27 @@ function AppointmentsSection({
                             .servicios
                             ?.nombre ||
                             "Servicio"}
+
                         </span>
+
                       ))}
 
                   </div>
+
+
+                  {/* DIRECCIÓN */}
 
                   <div className="client-appointment-address">
 
                     <MapPin size={16} />
 
                     <span>
+
                       {appointment
                         .direccion_servicio ||
-                        appointment
-                          .colonia ||
+                        appointment.colonia ||
                         "Dirección por confirmar"}
+
                     </span>
 
                   </div>
@@ -1006,6 +1296,7 @@ function AppointmentsSection({
                 </div>
 
               </article>
+
             )
           )}
 
@@ -1016,8 +1307,9 @@ function AppointmentsSection({
   );
 }
 
+
 /* =========================================================
-   PERFIL CLIENTE
+   MODAL PERFIL
 ========================================================= */
 
 function ProfileModal({
@@ -1038,11 +1330,13 @@ function ProfileModal({
         client?.direccion || "",
     });
 
+
   const [loading, setLoading] =
     useState(false);
 
   const [error, setError] =
     useState("");
+
 
   const handleChange = (e) => {
     setForm({
@@ -1055,8 +1349,10 @@ function ProfileModal({
     setError("");
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
 
     if (
       !form.telefono.trim() ||
@@ -1069,11 +1365,18 @@ function ProfileModal({
       return;
     }
 
+
     setLoading(true);
     setError("");
 
+
     try {
+      // =================================================
+      // ACTUALIZAR CLIENTE
+      // =================================================
+
       if (client) {
+
         const {
           error: updateError,
         } = await supabase
@@ -1094,11 +1397,17 @@ function ProfileModal({
             client.id_cliente
           );
 
+
         if (updateError) {
           throw updateError;
         }
 
       } else {
+
+        // =================================================
+        // CREAR PERFIL CLIENTE
+        // =================================================
+
         const {
           error: insertError,
         } = await supabase
@@ -1130,10 +1439,12 @@ function ProfileModal({
               "APP",
           });
 
+
         if (insertError) {
           throw insertError;
         }
       }
+
 
       onSaved();
 
@@ -1142,6 +1453,7 @@ function ProfileModal({
         "Error guardando perfil:",
         error
       );
+
 
       setError(
         "No fue posible guardar tu información."
@@ -1152,6 +1464,7 @@ function ProfileModal({
     }
   };
 
+
   return (
     <ModalBackground
       onClose={onClose}
@@ -1160,6 +1473,7 @@ function ProfileModal({
       <div className="client-modal-header">
 
         <div>
+
           <span>
             MI INFORMACIÓN
           </span>
@@ -1167,7 +1481,9 @@ function ProfileModal({
           <h2>
             Datos del cliente
           </h2>
+
         </div>
+
 
         <button
           type="button"
@@ -1177,6 +1493,7 @@ function ProfileModal({
         </button>
 
       </div>
+
 
       <form
         onSubmit={handleSubmit}
@@ -1193,6 +1510,7 @@ function ProfileModal({
           disabled
         />
 
+
         <label>
           Correo
         </label>
@@ -1203,6 +1521,7 @@ function ProfileModal({
           }
           disabled
         />
+
 
         <label>
           WhatsApp / Teléfono *
@@ -1225,6 +1544,7 @@ function ProfileModal({
 
         </div>
 
+
         <label>
           Colonia *
         </label>
@@ -1246,6 +1566,7 @@ function ProfileModal({
 
         </div>
 
+
         <label>
           Dirección
         </label>
@@ -1261,13 +1582,16 @@ function ProfileModal({
           placeholder="Calle, número y referencias"
         />
 
+
         {error && (
           <div className="login-error">
             {error}
           </div>
         )}
 
+
         <button
+          type="submit"
           className="primary-button"
           disabled={loading}
         >
@@ -1284,8 +1608,9 @@ function ProfileModal({
   );
 }
 
+
 /* =========================================================
-   REGISTRAR PERRO / MASCOTA
+   MODAL REGISTRAR MASCOTA
 ========================================================= */
 
 function PetModal({
@@ -1305,11 +1630,13 @@ function PetModal({
       notas: "",
     });
 
+
   const [loading, setLoading] =
     useState(false);
 
   const [error, setError] =
     useState("");
+
 
   const handleChange = (e) => {
     setForm({
@@ -1322,8 +1649,10 @@ function PetModal({
     setError("");
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
 
     if (!form.nombre.trim()) {
       setError(
@@ -1333,6 +1662,7 @@ function PetModal({
       return;
     }
 
+
     if (!form.tamano) {
       setError(
         "Selecciona el tamaño de tu mascota."
@@ -1341,8 +1671,10 @@ function PetModal({
       return;
     }
 
+
     setLoading(true);
     setError("");
+
 
     try {
       const {
@@ -1388,9 +1720,11 @@ function PetModal({
             null,
         });
 
+
       if (insertError) {
         throw insertError;
       }
+
 
       onSaved();
 
@@ -1399,6 +1733,7 @@ function PetModal({
         "Error registrando mascota:",
         error
       );
+
 
       setError(
         "No fue posible registrar la mascota."
@@ -1409,6 +1744,7 @@ function PetModal({
     }
   };
 
+
   return (
     <ModalBackground
       onClose={onClose}
@@ -1417,6 +1753,7 @@ function PetModal({
       <div className="client-modal-header">
 
         <div>
+
           <span>
             CAN WASH
           </span>
@@ -1424,7 +1761,9 @@ function PetModal({
           <h2>
             Registrar mascota
           </h2>
+
         </div>
+
 
         <button
           type="button"
@@ -1435,11 +1774,13 @@ function PetModal({
 
       </div>
 
+
       <p className="client-modal-description">
         Registra la información que
         necesitamos conocer antes de
         realizar el baño.
       </p>
+
 
       <form
         onSubmit={handleSubmit}
@@ -1447,7 +1788,10 @@ function PetModal({
 
         <div className="client-form-grid">
 
+          {/* NOMBRE */}
+
           <div>
+
             <label>
               Nombre *
             </label>
@@ -1462,9 +1806,14 @@ function PetModal({
               }
               placeholder="Ej. Max"
             />
+
           </div>
 
+
+          {/* ESPECIE */}
+
           <div>
+
             <label>
               Especie *
             </label>
@@ -1478,6 +1827,7 @@ function PetModal({
                 handleChange
               }
             >
+
               <option value="PERRO">
                 Perro
               </option>
@@ -1485,10 +1835,16 @@ function PetModal({
               <option value="GATO">
                 Gato
               </option>
+
             </select>
+
           </div>
 
+
+          {/* RAZA */}
+
           <div>
+
             <label>
               Raza
             </label>
@@ -1503,9 +1859,14 @@ function PetModal({
               }
               placeholder="Ej. French Poodle"
             />
+
           </div>
 
+
+          {/* TAMAÑO */}
+
           <div>
+
             <label>
               Tamaño *
             </label>
@@ -1519,6 +1880,7 @@ function PetModal({
                 handleChange
               }
             >
+
               <option value="CHICO">
                 Chico
               </option>
@@ -1534,10 +1896,16 @@ function PetModal({
               <option value="GIGANTE">
                 Gigante
               </option>
+
             </select>
+
           </div>
 
+
+          {/* PESO */}
+
           <div>
+
             <label>
               Peso aproximado
             </label>
@@ -1555,9 +1923,13 @@ function PetModal({
               }
               placeholder="Ej. 12.5 kg"
             />
+
           </div>
 
         </div>
+
+
+        {/* PADECIMIENTOS */}
 
         <label>
           ¿Tiene algún padecimiento?
@@ -1574,6 +1946,9 @@ function PetModal({
           placeholder="Epilepsia, problemas cardíacos, alergias, etc."
         />
 
+
+        {/* COMPORTAMIENTO */}
+
         <label>
           ¿Cómo es su comportamiento?
         </label>
@@ -1588,6 +1963,9 @@ function PetModal({
           }
           placeholder="Tranquilo, nervioso, agresivo, intenta morder..."
         />
+
+
+        {/* NOTAS */}
 
         <label>
           Observaciones del pelaje
@@ -1604,11 +1982,17 @@ function PetModal({
           placeholder="Nudos, doble capa, pelaje apelmazado, sensibilidad..."
         />
 
+
+        {/* ERROR */}
+
         {error && (
           <div className="login-error">
             {error}
           </div>
         )}
+
+
+        {/* GUARDAR */}
 
         <button
           type="submit"
@@ -1628,8 +2012,9 @@ function PetModal({
   );
 }
 
+
 /* =========================================================
-   DETALLE MASCOTA
+   DETALLE DE MASCOTA
 ========================================================= */
 
 function PetDetailsModal({
@@ -1644,6 +2029,7 @@ function PetDetailsModal({
       <div className="client-modal-header">
 
         <div>
+
           <span>
             MASCOTA
           </span>
@@ -1651,7 +2037,9 @@ function PetDetailsModal({
           <h2>
             {pet.nombre}
           </h2>
+
         </div>
+
 
         <button
           type="button"
@@ -1662,19 +2050,29 @@ function PetDetailsModal({
 
       </div>
 
+
+      {/* ICONO */}
+
       <div className="client-pet-detail-icon">
+
         {pet.especie === "GATO" ? (
           <PawPrint size={42} />
         ) : (
           <Dog size={42} />
         )}
+
       </div>
+
+
+      {/* INFORMACIÓN */}
 
       <div className="client-detail-grid">
 
         <Detail
           title="Especie"
-          value={pet.especie}
+          value={
+            pet.especie
+          }
         />
 
         <Detail
@@ -1704,6 +2102,9 @@ function PetDetailsModal({
 
       </div>
 
+
+      {/* PADECIMIENTOS */}
+
       <div className="client-detail-section">
 
         <h3>
@@ -1717,6 +2118,9 @@ function PetDetailsModal({
 
       </div>
 
+
+      {/* COMPORTAMIENTO */}
+
       <div className="client-detail-section">
 
         <h3>
@@ -1729,6 +2133,9 @@ function PetDetailsModal({
         </p>
 
       </div>
+
+
+      {/* OBSERVACIONES */}
 
       <div className="client-detail-section">
 
@@ -1746,6 +2153,11 @@ function PetDetailsModal({
     </ModalBackground>
   );
 }
+
+
+/* =========================================================
+   DETALLE
+========================================================= */
 
 function Detail({
   title,
@@ -1766,6 +2178,7 @@ function Detail({
   );
 }
 
+
 /* =========================================================
    MODAL BASE
 ========================================================= */
@@ -1777,73 +2190,104 @@ function ModalBackground({
   return (
     <div
       className="client-modal-background"
-      onClick={onClose}
+
+      onClick={
+        onClose
+      }
     >
+
       <div
         className="client-modal"
+
         onClick={(e) =>
           e.stopPropagation()
         }
       >
+
         {children}
+
       </div>
+
     </div>
   );
 }
 
+
 /* =========================================================
-   ESTADOS
+   ESTADO DE CITA
 ========================================================= */
 
-function StatusBadge({ status }) {
+function StatusBadge({
+  status,
+}) {
+  const normalizedStatus =
+    status
+      ?.toUpperCase() ||
+    "";
+
+
   let className =
     "status-default";
 
+
   if (
-    status === "CONFIRMADA"
+    normalizedStatus ===
+    "CONFIRMADA"
   ) {
     className =
       "status-confirmed";
   }
 
+
   if (
-    status === "PENDIENTE"
+    normalizedStatus ===
+    "PENDIENTE"
   ) {
     className =
       "status-pending";
   }
 
+
   if (
-    status === "COMPLETADA"
+    normalizedStatus ===
+    "COMPLETADA"
   ) {
     className =
       "status-completed";
   }
 
+
   if (
-    status === "CANCELADA"
+    normalizedStatus ===
+    "CANCELADA"
   ) {
     className =
       "status-cancelled";
   }
 
+
   return (
     <span
-      className={`appointment-status ${className}`}
+      className={
+        `appointment-status ${className}`
+      }
     >
-      {status}
+      {status ||
+        "SIN ESTADO"}
     </span>
   );
 }
 
+
 /* =========================================================
-   FORMATO
+   FORMATEAR FECHA
 ========================================================= */
 
 function formatDate(date) {
   if (!date) {
     return "";
   }
+
 
   return new Intl.DateTimeFormat(
     "es-MX",
@@ -1859,14 +2303,21 @@ function formatDate(date) {
   );
 }
 
+
+/* =========================================================
+   FORMATEAR HORA
+========================================================= */
+
 function formatTime(time) {
   if (!time) {
     return "";
   }
 
+
   return time
     .toString()
     .slice(0, 5);
 }
+
 
 export default ClientDashboard;

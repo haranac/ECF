@@ -13,9 +13,7 @@ import { supabase } from "../lib/supabase";
 
 
 function Login({ onLogin, onRegister }) {
-  // =====================================================
-  // ESTADOS
-  // =====================================================
+  
 
   const [form, setForm] = useState({
     email: "",
@@ -32,9 +30,6 @@ function Login({ onLogin, onRegister }) {
     useState(false);
 
 
-  // =====================================================
-  // ACTUALIZAR FORMULARIO
-  // =====================================================
 
   const handleChange = (e) => {
     setForm({
@@ -47,17 +42,12 @@ function Login({ onLogin, onRegister }) {
   };
 
 
-  // =====================================================
-  // INICIAR SESIÓN
-  // =====================================================
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
 
-    // -------------------------------------------------
-    // VALIDACIÓN
-    // -------------------------------------------------
+    
 
     if (
       !form.email.trim() ||
@@ -76,9 +66,7 @@ function Login({ onLogin, onRegister }) {
 
 
     try {
-      // =================================================
-      // 1. AUTENTICAR CON SUPABASE
-      // =================================================
+      
 
       const {
         data,
@@ -96,9 +84,7 @@ function Login({ onLogin, onRegister }) {
           });
 
 
-      // =================================================
-      // 2. ERROR DE AUTENTICACIÓN
-      // =================================================
+      
 
       if (loginError) {
         console.error(
@@ -133,9 +119,6 @@ function Login({ onLogin, onRegister }) {
       }
 
 
-      // =================================================
-      // 3. VERIFICAR USUARIO
-      // =================================================
 
       if (!data?.user) {
         setError(
@@ -146,9 +129,6 @@ function Login({ onLogin, onRegister }) {
       }
 
 
-      // =================================================
-      // 4. CONSULTAR PERFIL EN PUBLIC.USUARIOS
-      // =================================================
 
       const {
         data: profile,
@@ -169,10 +149,7 @@ function Login({ onLogin, onRegister }) {
           .single();
 
 
-      // =================================================
-      // 5. ERROR AL OBTENER PERFIL
-      // =================================================
-
+   
       if (profileError) {
         console.error(
           "Error obteniendo perfil:",
@@ -189,9 +166,7 @@ function Login({ onLogin, onRegister }) {
       }
 
 
-      // =================================================
-      // 6. CUENTA DESACTIVADA
-      // =================================================
+     
 
       if (
         profile.activo === false
@@ -206,9 +181,6 @@ function Login({ onLogin, onRegister }) {
       }
 
 
-      // =================================================
-      // 7. VALIDAR ROL
-      // =================================================
 
       const validRoles = [
         "ADMIN",
@@ -232,9 +204,7 @@ function Login({ onLogin, onRegister }) {
       }
 
 
-      // =================================================
-      // 8. CONSTRUIR USUARIO
-      // =================================================
+  
 
       const userData = {
         id_usuario:
@@ -254,10 +224,6 @@ function Login({ onLogin, onRegister }) {
       };
 
 
-      // =================================================
-      // 9. INFORMAR A APP.JSX
-      // =================================================
-
       await onLogin(userData);
 
     } catch (error) {
@@ -276,17 +242,12 @@ function Login({ onLogin, onRegister }) {
   };
 
 
-  // =====================================================
-  // INTERFAZ
-  // =====================================================
+ 
 
   return (
     <div className="login-page">
 
-      {/* =================================================
-          LADO IZQUIERDO
-      ================================================== */}
-
+   
       <section className="login-decoration">
 
         <PawPrint size={75} />
@@ -302,9 +263,6 @@ function Login({ onLogin, onRegister }) {
       </section>
 
 
-      {/* =================================================
-          LOGIN
-      ================================================== */}
 
       <section className="login-card">
 
@@ -330,9 +288,6 @@ function Login({ onLogin, onRegister }) {
           onSubmit={handleSubmit}
         >
 
-          {/* =============================================
-              CORREO
-          ============================================== */}
 
           <label htmlFor="email">
             Correo electrónico
@@ -368,10 +323,7 @@ function Login({ onLogin, onRegister }) {
           </div>
 
 
-          {/* =============================================
-              CONTRASEÑA
-          ============================================== */}
-
+        
           <label htmlFor="password">
             Contraseña
           </label>
@@ -443,9 +395,7 @@ function Login({ onLogin, onRegister }) {
           </div>
 
 
-          {/* =============================================
-              ERROR
-          ============================================== */}
+        
 
           {error && (
             <div className="login-error">
@@ -456,9 +406,7 @@ function Login({ onLogin, onRegister }) {
           )}
 
 
-          {/* =============================================
-              INICIAR SESIÓN
-          ============================================== */}
+          
 
           <button
             type="submit"
@@ -483,9 +431,6 @@ function Login({ onLogin, onRegister }) {
           </button>
 
 
-          {/* =============================================
-              REGISTRO
-          ============================================== */}
 
           <div className="register-link">
 
