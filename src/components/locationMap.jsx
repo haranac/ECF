@@ -535,7 +535,8 @@ function LocationMap() {
             }
 
             className="
-              mt-6
+              isolate
+            mt-6
               h-[350px]
               w-full
               overflow-hidden
