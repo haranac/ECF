@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   ArrowLeft,
@@ -63,6 +63,24 @@ function Register({
   const [loading, setLoading] =
     useState(false);
 
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendMessage, setResendMessage] = useState("");
+  const [resendError, setResendError] = useState("");
+
+  const busy = loading || resending;
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const timeout = window.setTimeout(() => {
+      setResendCooldown((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [resendCooldown]);
+
 
   // =====================================================
   // FORMULARIO
@@ -83,6 +101,13 @@ function Register({
 
     setError("");
     setSuccess("");
+
+    if (name === "email" && value.trim().toLowerCase() !== pendingEmail) {
+      setPendingEmail("");
+      setResendMessage("");
+      setResendError("");
+      setResendCooldown(0);
+    }
   };
 
 
@@ -104,8 +129,51 @@ function Register({
   // REGISTRO
   // =====================================================
 
+  const handleResendVerification = async () => {
+    const email = form.email.trim().toLowerCase();
+
+    if (busy || resendCooldown > 0 || !pendingEmail || email !== pendingEmail) {
+      return;
+    }
+
+    setResending(true);
+    setResendMessage("");
+    setResendError("");
+
+    try {
+      const { error: resendFailure } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+      });
+
+      if (resendFailure) {
+        if (
+          resendFailure.status === 429 ||
+          resendFailure.code === "over_email_send_rate_limit" ||
+          resendFailure.code === "over_request_rate_limit"
+        ) {
+          setResendCooldown(60);
+          setResendError("Espera un momento antes de solicitar otro correo de verificación.");
+        } else {
+          setResendError("No fue posible reenviar el correo de verificación. Inténtalo de nuevo.");
+        }
+
+        return;
+      }
+
+      setResendCooldown(60);
+      setResendMessage("Solicitud de reenvío recibida. Revisa tu bandeja de entrada y correo no deseado.");
+    } catch {
+      setResendError("No fue posible conectarse con el servidor. Inténtalo de nuevo.");
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (busy || pendingEmail) return;
 
 
     setError("");
@@ -248,6 +316,7 @@ function Register({
 
 
         if (
+          signUpError.code === "user_already_exists" ||
           message.includes(
             "already registered"
           ) ||
@@ -258,6 +327,13 @@ function Register({
           setError(
             "Ya existe una cuenta registrada con este correo."
           );
+
+        } else if (
+          signUpError.status === 429 ||
+          signUpError.code === "over_email_send_rate_limit" ||
+          signUpError.code === "over_request_rate_limit"
+        ) {
+          setError("Espera un momento antes de volver a intentar el registro.");
 
         } else if (
           message.includes(
@@ -310,6 +386,33 @@ function Register({
         return;
       }
 
+      // Detectar la respuesta de un registro repetido ya confirmado.
+      if (
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        setError(
+          "Ya existe una cuenta registrada con este correo. Inicia sesión."
+        );
+
+        return;
+      }
+
+      // Tanto un alta nueva como una cuenta anterior pueden estar pendientes.
+      if (!data.session) {
+        setPendingEmail(email);
+        setResendMessage("");
+        setResendError("");
+        setResendCooldown(60);
+        setForm((current) => ({
+          ...current,
+          email,
+          password: "",
+          confirmPassword: "",
+        }));
+
+        return;
+      }
 
       /*
         ==================================================
@@ -348,47 +451,28 @@ function Register({
 
 
       // =================================================
-      // CONFIRMACIÓN DE CORREO
+      // REGISTRO CON SESIÓN AUTOMÁTICA
       // =================================================
 
-      if (!data.session) {
-        setSuccess(
-          "Cuenta creada correctamente. Revisa tu correo electrónico para confirmar tu cuenta."
-        );
-
-      } else {
-        /*
-          Si Supabase inicia sesión automáticamente
-          después del registro, cerramos esa sesión.
-
-          Así mantenemos:
-
-          Register
-             ↓
-          Login
-             ↓
-          Dashboard
-        */
-
-        const {
-          error: logoutError,
-        } =
-          await supabase.auth
-            .signOut();
+      // Cerramos la sesión automática para volver al inicio de sesión.
+      const {
+        error: logoutError,
+      } =
+        await supabase.auth
+          .signOut();
 
 
-        if (logoutError) {
-          console.warn(
-            "No fue posible cerrar la sesión automática:",
-            logoutError
-          );
-        }
-
-
-        setSuccess(
-          "Cuenta creada correctamente. Ya puedes iniciar sesión."
+      if (logoutError) {
+        console.warn(
+          "No fue posible cerrar la sesión automática:",
+          logoutError
         );
       }
+
+
+      setSuccess(
+        "Cuenta creada correctamente. Ya puedes iniciar sesión."
+      );
 
 
       // =================================================
@@ -632,7 +716,7 @@ function Register({
             }
 
             disabled={
-              loading
+              busy
             }
 
             className="
@@ -819,7 +903,7 @@ function Register({
                 }
 
                 disabled={
-                  loading
+                  busy || Boolean(pendingEmail)
                 }
               />
 
@@ -849,7 +933,7 @@ function Register({
                 }
 
                 disabled={
-                  loading
+                  busy || Boolean(pendingEmail)
                 }
               />
 
@@ -903,7 +987,7 @@ function Register({
                 autoComplete="name"
 
                 disabled={
-                  loading
+                  busy || Boolean(pendingEmail)
                 }
 
                 className={
@@ -946,8 +1030,12 @@ function Register({
 
                 autoComplete="email"
 
+                aria-describedby={
+                  pendingEmail ? "email-verification-status" : undefined
+                }
+
                 disabled={
-                  loading
+                  busy
                 }
 
                 className={
@@ -957,6 +1045,40 @@ function Register({
 
             </InputContainer>
 
+
+            {pendingEmail && (
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
+                <p id="email-verification-status" role="status" className="font-semibold">
+                  Cuenta con verificación pendiente
+                </p>
+
+                <p className="mt-1 leading-6">
+                  Confirma tu correo con el enlace enviado. Si no lo encuentras,
+                  revisa tu carpeta de correo no deseado o solicita otro.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={busy || resendCooldown > 0}
+                  className="mt-2 rounded font-semibold underline underline-offset-4 hover:text-canwash-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-canwash disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {resending
+                    ? "Reenviando correo..."
+                    : resendCooldown > 0
+                      ? `Reenviar correo de verificación (${resendCooldown} s)`
+                      : "Reenviar correo de verificación"}
+                </button>
+
+                {resendMessage && (
+                  <p role="status" className="mt-2 leading-6">{resendMessage}</p>
+                )}
+
+                {resendError && (
+                  <p role="alert" className="mt-2 leading-6 text-red-700">{resendError}</p>
+                )}
+              </div>
+            )}
 
             {/* CONTRASEÑA */}
 
@@ -993,7 +1115,7 @@ function Register({
               }
 
               disabled={
-                loading
+                busy || Boolean(pendingEmail)
               }
             />
 
@@ -1033,7 +1155,7 @@ function Register({
               }
 
               disabled={
-                loading
+                busy || Boolean(pendingEmail)
               }
             />
 
@@ -1123,7 +1245,7 @@ function Register({
               type="submit"
 
               disabled={
-                loading
+                busy || Boolean(pendingEmail)
               }
 
               className="
@@ -1207,7 +1329,7 @@ function Register({
                 }
 
                 disabled={
-                  loading
+                  busy
                 }
 
                 className="
