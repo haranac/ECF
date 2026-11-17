@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import {
+  ArrowLeft,
   Eye,
   EyeOff,
   Lock,
@@ -15,6 +16,7 @@ import { supabase } from "../lib/supabase";
 function Login({
   onLogin,
   onRegister,
+  onBack,
 }) {
   // =====================================================
   // ESTADOS
@@ -48,12 +50,10 @@ function Login({
       value,
     } = e.target;
 
-
     setForm((current) => ({
       ...current,
       [name]: value,
     }));
-
 
     setError("");
   };
@@ -250,7 +250,7 @@ function Login({
     >
 
       {/* =================================================
-          DECORACIÓN
+          DECORACIÓN IZQUIERDA
       ================================================== */}
 
       <section
@@ -412,6 +412,8 @@ function Login({
 
       <section
         className="
+          relative
+
           flex
           min-h-screen
           items-center
@@ -424,6 +426,81 @@ function Login({
         "
       >
 
+        {/* ===============================================
+            BOTÓN VOLVER A LANDING
+        ================================================ */}
+
+        <button
+          type="button"
+
+          onClick={onBack}
+
+          disabled={
+            loading
+          }
+
+          className="
+            group
+
+            absolute
+            left-5
+            top-5
+
+            z-20
+
+            flex
+            items-center
+            gap-2
+
+            rounded-xl
+
+            px-3
+            py-2
+
+            text-sm
+            font-semibold
+
+            text-canwash-muted
+
+            transition
+            duration-300
+
+            hover:bg-canwash-light/60
+            hover:text-canwash-dark
+
+            focus:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-canwash
+
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+
+            sm:left-8
+            sm:top-8
+          "
+        >
+
+          <ArrowLeft
+            size={19}
+            className="
+              transition-transform
+              duration-300
+
+              group-hover:-translate-x-1
+            "
+          />
+
+          <span>
+            Volver
+          </span>
+
+        </button>
+
+
+        {/* ===============================================
+            CONTENIDO
+        ================================================ */}
+
         <div
           className="
             w-full
@@ -431,11 +508,14 @@ function Login({
           "
         >
 
-          {/* LOGO MÓVIL */}
+          {/* =============================================
+              LOGO MÓVIL
+          ============================================== */}
 
           <div
             className="
               mb-8
+              mt-8
 
               flex
               items-center
@@ -458,7 +538,9 @@ function Login({
                 text-canwash-dark
               "
             >
-              <PawPrint size={27} />
+              <PawPrint
+                size={27}
+              />
             </div>
 
 
@@ -491,7 +573,9 @@ function Login({
           </div>
 
 
-          {/* ICONO */}
+          {/* =============================================
+              ICONO
+          ============================================== */}
 
           <div
             className="
@@ -511,11 +595,15 @@ function Login({
               shadow-canwash/20
             "
           >
-            <PawPrint size={38} />
+            <PawPrint
+              size={38}
+            />
           </div>
 
 
-          {/* TÍTULO */}
+          {/* =============================================
+              TÍTULO
+          ============================================== */}
 
           <h2
             className="
@@ -556,7 +644,9 @@ function Login({
             className="mt-8"
           >
 
-            {/* CORREO */}
+            {/* =============================================
+                CORREO
+            ============================================== */}
 
             <FormLabel
               htmlFor="email"
@@ -600,7 +690,9 @@ function Login({
             </InputContainer>
 
 
-            {/* CONTRASEÑA */}
+            {/* =============================================
+                CONTRASEÑA
+            ============================================== */}
 
             <FormLabel
               htmlFor="password"
@@ -647,6 +739,10 @@ function Login({
               />
 
 
+              {/* ===========================================
+                  MOSTRAR / OCULTAR CONTRASEÑA
+              ============================================ */}
+
               <button
                 type="button"
 
@@ -692,9 +788,13 @@ function Login({
               >
 
                 {showPassword ? (
-                  <EyeOff size={19} />
+                  <EyeOff
+                    size={19}
+                  />
                 ) : (
-                  <Eye size={19} />
+                  <Eye
+                    size={19}
+                  />
                 )}
 
               </button>
@@ -702,7 +802,9 @@ function Login({
             </InputContainer>
 
 
-            {/* ERROR */}
+            {/* =============================================
+                ERROR
+            ============================================== */}
 
             {error && (
               <div
@@ -734,7 +836,9 @@ function Login({
             )}
 
 
-            {/* BOTÓN LOGIN */}
+            {/* =============================================
+                BOTÓN LOGIN
+            ============================================== */}
 
             <button
               type="submit"
@@ -789,13 +893,17 @@ function Login({
 
 
               {!loading && (
-                <LogIn size={19} />
+                <LogIn
+                  size={19}
+                />
               )}
 
             </button>
 
 
-            {/* REGISTRO */}
+            {/* =============================================
+                REGISTRO
+            ============================================== */}
 
             <div
               className="

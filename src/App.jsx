@@ -99,15 +99,23 @@ function App() {
   const handleLogin = async (
     supabaseUser
   ) => {
-    const success =
-      await login(
-        supabaseUser
-      );
+    try {
+      const success =
+        await login(
+          supabaseUser
+        );
 
 
-    if (success) {
-      setAppView(
-        "dashboard"
+      if (success) {
+        setAppView(
+          "dashboard"
+        );
+      }
+
+    } catch (error) {
+      console.error(
+        "Error en handleLogin:",
+        error
       );
     }
   };
@@ -119,17 +127,25 @@ function App() {
 
   const handleLogout =
     async () => {
-      const success =
-        await logout();
+      try {
+        const success =
+          await logout();
 
 
-      if (success) {
-        setAppView(
-          "dashboard"
-        );
+        if (success) {
+          setAppView(
+            "dashboard"
+          );
 
-        setPublicPage(
-          "landing"
+          setPublicPage(
+            "landing"
+          );
+        }
+
+      } catch (error) {
+        console.error(
+          "Error cerrando sesión:",
+          error
         );
       }
     };
@@ -223,7 +239,9 @@ function App() {
         "
       >
 
-        {/* ERROR GLOBAL */}
+        {/* ===============================================
+            ERROR GLOBAL
+        ================================================ */}
 
         {authError && (
           <AuthError
@@ -238,6 +256,12 @@ function App() {
         )}
 
 
+        {/* ===============================================
+            LOGIN
+
+            onBack regresa a LandingPage
+        ================================================ */}
+
         <Login
           onLogin={
             handleLogin
@@ -247,12 +271,9 @@ function App() {
             goToRegister
           }
 
-          /*
-            Si posteriormente agregas
-            onBack a Login, puedes pasar:
-
-            onBack={goToLanding}
-          */
+          onBack={
+            goToLanding
+          }
         />
 
       </div>
@@ -269,7 +290,9 @@ function App() {
   ) {
     return (
       <Profile
-        user={user}
+        user={
+          user
+        }
 
         onBack={
           closeProfile
@@ -292,7 +315,9 @@ function App() {
   ) {
     return (
       <ClientDashboard
-        user={user}
+        user={
+          user
+        }
 
         onLogout={
           handleLogout
@@ -315,7 +340,9 @@ function App() {
   ) {
     return (
       <EmployeeDashboard
-        user={user}
+        user={
+          user
+        }
 
         onLogout={
           handleLogout
@@ -338,7 +365,9 @@ function App() {
   ) {
     return (
       <EmployeeDashboard
-        user={user}
+        user={
+          user
+        }
 
         onLogout={
           handleLogout
@@ -353,7 +382,7 @@ function App() {
 
 
   // =====================================================
-  // ROL INVÁLIDO
+  // ROL NO RECONOCIDO
   // =====================================================
 
   return (
@@ -416,7 +445,6 @@ function AuthError({
 
       <AlertCircle
         size={19}
-
         className="
           mt-0.5
           shrink-0
@@ -460,7 +488,9 @@ function AuthError({
           hover:text-red-700
         "
       >
-        <X size={16} />
+        <X
+          size={16}
+        />
       </button>
 
     </div>
