@@ -17,7 +17,9 @@ import {
   User,
 } from "lucide-react";
 
-import { supabase } from "../lib/supabase";
+import {
+  supabase,
+} from "../lib/supabase";
 
 import Sidebar from "../utils/sidebar";
 import MobileMenu from "../utils/mobileMenu";
@@ -36,33 +38,45 @@ function Profile({
   // ESTADOS
   // =====================================================
 
-  const [client, setClient] =
-    useState(null);
+  const [
+    client,
+    setClient,
+  ] = useState(null);
 
   const [
     mobileMenuOpen,
     setMobileMenuOpen,
   ] = useState(false);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [saving, setSaving] =
-    useState(false);
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-  const [success, setSuccess] =
-    useState("");
+  const [
+    success,
+    setSuccess,
+  ] = useState("");
 
 
-  const [form, setForm] =
-    useState({
-      telefono: "",
-      colonia: "",
-      direccion: "",
-    });
+  const [
+    form,
+    setForm,
+  ] = useState({
+    telefono: "",
+    colonia: "",
+    direccion: "",
+  });
 
 
   // =====================================================
@@ -91,19 +105,20 @@ function Profile({
       );
 
       setLoading(false);
+
       return;
     }
 
 
     setLoading(true);
+
     setError("");
 
 
     try {
-      /*
-        Por ahora los campos adicionales
-        pertenecen a la tabla clientes.
-      */
+      // =================================================
+      // CLIENTE
+      // =================================================
 
       if (isClient) {
         const {
@@ -119,6 +134,8 @@ function Profile({
             email,
             colonia,
             direccion,
+            latitud,
+            longitud,
             medio_contacto,
             origen_cliente,
             notas,
@@ -136,18 +153,23 @@ function Profile({
         }
 
 
-        setClient(data);
+        setClient(
+          data
+        );
 
 
         setForm({
           telefono:
-            data?.telefono || "",
+            data?.telefono ||
+            "",
 
           colonia:
-            data?.colonia || "",
+            data?.colonia ||
+            "",
 
           direccion:
-            data?.direccion || "",
+            data?.direccion ||
+            "",
         });
       }
 
@@ -156,6 +178,7 @@ function Profile({
         "Error cargando perfil:",
         loadError
       );
+
 
       setError(
         "No fue posible cargar la información del perfil."
@@ -173,6 +196,7 @@ function Profile({
 
   useEffect(() => {
     loadProfile();
+
   }, [
     user?.id_usuario,
     role,
@@ -183,17 +207,21 @@ function Profile({
   // FORMULARIO
   // =====================================================
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e
+  ) => {
     const {
       name,
       value,
     } = e.target;
 
 
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
+    setForm(
+      (current) => ({
+        ...current,
+        [name]: value,
+      })
+    );
 
 
     setError("");
@@ -202,10 +230,40 @@ function Profile({
 
 
   // =====================================================
-  // GUARDAR
+  // UBICACIÓN GUARDADA
   // =====================================================
 
-  const handleSubmit = async (e) => {
+  const handleLocationSaved = (
+    newLocation
+  ) => {
+    setClient(
+      (current) => {
+        if (!current) {
+          return current;
+        }
+
+
+        return {
+          ...current,
+
+          latitud:
+            newLocation.latitude,
+
+          longitud:
+            newLocation.longitude,
+        };
+      }
+    );
+  };
+
+
+  // =====================================================
+  // GUARDAR PERFIL
+  // =====================================================
+
+  const handleSubmit = async (
+    e
+  ) => {
     e.preventDefault();
 
 
@@ -214,7 +272,13 @@ function Profile({
     }
 
 
-    if (!form.telefono.trim()) {
+    // ===================================================
+    // VALIDACIONES
+    // ===================================================
+
+    if (
+      !form.telefono.trim()
+    ) {
       setError(
         "Ingresa tu número de teléfono."
       );
@@ -223,7 +287,9 @@ function Profile({
     }
 
 
-    if (!form.colonia.trim()) {
+    if (
+      !form.colonia.trim()
+    ) {
       setError(
         "Ingresa tu colonia."
       );
@@ -233,14 +299,15 @@ function Profile({
 
 
     setSaving(true);
+
     setError("");
     setSuccess("");
 
 
     try {
-      // ===============================================
-      // ACTUALIZAR
-      // ===============================================
+      // =================================================
+      // ACTUALIZAR CLIENTE
+      // =================================================
 
       if (client) {
         const {
@@ -249,10 +316,12 @@ function Profile({
           .from("clientes")
           .update({
             telefono:
-              form.telefono.trim(),
+              form.telefono
+                .trim(),
 
             colonia:
-              form.colonia.trim(),
+              form.colonia
+                .trim(),
 
             direccion:
               form.direccion
@@ -270,11 +339,12 @@ function Profile({
         }
 
       } else {
-        // =============================================
-        // CREAR PERFIL
-        // =============================================
+        // ===============================================
+        // CREAR PERFIL CLIENTE
+        // ===============================================
 
         const {
+          data: newClient,
           error: insertError,
         } = await supabase
           .from("clientes")
@@ -289,10 +359,12 @@ function Profile({
               user.email,
 
             telefono:
-              form.telefono.trim(),
+              form.telefono
+                .trim(),
 
             colonia:
-              form.colonia.trim(),
+              form.colonia
+                .trim(),
 
             direccion:
               form.direccion
@@ -304,14 +376,39 @@ function Profile({
 
             origen_cliente:
               "APP",
-          });
+          })
+          .select(`
+            id_cliente,
+            id_usuario,
+            nombre,
+            telefono,
+            email,
+            colonia,
+            direccion,
+            latitud,
+            longitud,
+            medio_contacto,
+            origen_cliente,
+            notas,
+            fecha_registro
+          `)
+          .single();
 
 
         if (insertError) {
           throw insertError;
         }
+
+
+        setClient(
+          newClient
+        );
       }
 
+
+      // =================================================
+      // RECARGAR
+      // =================================================
 
       await loadProfile();
 
@@ -328,6 +425,7 @@ function Profile({
 
 
       setError(
+        saveError.message ||
         "No fue posible guardar los cambios."
       );
 
@@ -343,12 +441,14 @@ function Profile({
 
   const handleBack = () => {
     setMobileMenuOpen(false);
+
     onBack?.();
   };
 
 
   const handleLogout = () => {
     setMobileMenuOpen(false);
+
     onLogout?.();
   };
 
@@ -358,7 +458,9 @@ function Profile({
   // =====================================================
 
   if (loading) {
-    return <LoadingScreen />;
+    return (
+      <LoadingScreen />
+    );
   }
 
 
@@ -373,12 +475,15 @@ function Profile({
         bg-canwash-background
       "
     >
-      {/* ===============================================
+
+      {/* =================================================
           SIDEBAR
-      ================================================ */}
+      ================================================== */}
 
       <Sidebar
-        user={user}
+        user={
+          user
+        }
 
         view="perfil"
 
@@ -391,7 +496,9 @@ function Profile({
         }
 
         onProfile={() =>
-          setMobileMenuOpen(false)
+          setMobileMenuOpen(
+            false
+          )
         }
 
         onLogout={
@@ -399,6 +506,10 @@ function Profile({
         }
       />
 
+
+      {/* =================================================
+          MOBILE MENU
+      ================================================== */}
 
       <MobileMenu
         isOpen={
@@ -413,18 +524,21 @@ function Profile({
         }
 
         onClose={() =>
-          setMobileMenuOpen(false)
+          setMobileMenuOpen(
+            false
+          )
         }
       />
 
 
-      {/* ===============================================
+      {/* =================================================
           CONTENIDO
-      ================================================ */}
+      ================================================== */}
 
       <main
         className="
           min-h-screen
+
           px-4
           pb-24
 
@@ -438,9 +552,10 @@ function Profile({
           lg:px-9
         "
       >
-        {/* =============================================
+
+        {/* ===============================================
             TOPBAR
-        ============================================== */}
+        ================================================ */}
 
         <header
           className="
@@ -449,75 +564,106 @@ function Profile({
             items-center
             justify-between
             gap-4
+
             py-3
           "
         >
+
           <div>
+
             <span
               className="
                 text-[10px]
                 font-bold
                 tracking-[0.2em]
+
                 text-canwash-muted
               "
             >
               CAN WASH
             </span>
 
+
             <h2
               className="
                 mt-1
+
                 text-xl
                 font-bold
+
                 text-canwash-dark
               "
             >
               Mi perfil
             </h2>
+
           </div>
 
 
           <button
             type="button"
+
             onClick={
               loadProfile
             }
+
             className="
               grid
               h-11
               w-11
               place-items-center
+
               rounded-xl
+
               border
               border-canwash-light
+
               bg-white/80
+
               text-canwash-dark
+
               backdrop-blur-sm
+
               transition
+
               hover:bg-white
+
               sm:flex
               sm:w-auto
               sm:gap-2
               sm:px-4
             "
           >
-            <RefreshCw size={18} />
 
-            <span className="hidden sm:inline">
+            <RefreshCw
+              size={18}
+            />
+
+
+            <span
+              className="
+                hidden
+                sm:inline
+              "
+            >
               Actualizar
             </span>
+
           </button>
+
         </header>
 
 
-        {/* =============================================
+        {/* ===============================================
             CABECERA PERFIL
-        ============================================== */}
+        ================================================ */}
 
         <section
           className="
             relative
+
             overflow-hidden
+
             rounded-3xl
 
             bg-gradient-to-br
@@ -534,17 +680,23 @@ function Profile({
             sm:p-8
           "
         >
+
           <div
             className="
               relative
               z-10
+
               flex
               flex-col
               gap-5
+
               sm:flex-row
               sm:items-center
             "
           >
+
+            {/* AVATAR */}
+
             <div
               className="
                 grid
@@ -552,11 +704,15 @@ function Profile({
                 w-20
                 shrink-0
                 place-items-center
+
                 rounded-2xl
+
                 bg-canwash-dark
+
                 text-3xl
                 font-bold
                 text-white
+
                 shadow-lg
               "
             >
@@ -568,23 +724,29 @@ function Profile({
 
 
             <div>
+
               <span
                 className="
                   text-[10px]
                   font-bold
                   tracking-[0.2em]
+
                   text-canwash-muted
                 "
               >
                 PERFIL DE USUARIO
               </span>
 
+
               <h1
                 className="
                   mt-1
+
                   text-2xl
                   font-bold
+
                   text-canwash-dark
+
                   sm:text-3xl
                 "
               >
@@ -592,10 +754,13 @@ function Profile({
                   "Usuario"}
               </h1>
 
+
               <p
                 className="
                   mt-1
+
                   text-sm
+
                   text-canwash-muted
                 "
               >
@@ -603,29 +768,40 @@ function Profile({
                   "Sin correo"}
               </p>
 
+
               <span
                 className="
                   mt-3
+
                   inline-flex
                   items-center
                   gap-2
+
                   rounded-full
+
                   bg-white/70
+
                   px-3
                   py-1.5
+
                   text-xs
                   font-semibold
+
                   text-canwash-dark
                 "
               >
+
                 <ShieldCheck
                   size={15}
                 />
 
                 {role ||
                   "USUARIO"}
+
               </span>
+
             </div>
+
           </div>
 
 
@@ -634,43 +810,59 @@ function Profile({
               absolute
               -bottom-16
               right-8
+
               hidden
               h-52
               w-52
+
               text-canwash/20
+
               sm:block
             "
           />
+
         </section>
 
 
-        {/* =============================================
+        {/* ===============================================
             MENSAJES
-        ============================================== */}
+        ================================================ */}
 
         {error && (
           <div
             role="alert"
+
             className="
               mt-5
+
               flex
               items-start
               gap-3
+
               rounded-xl
+
               border
               border-red-200
+
               bg-red-50/80
+
               p-4
+
               text-sm
               text-red-700
             "
           >
+
             <AlertCircle
               size={19}
-              className="shrink-0"
+
+              className="
+                shrink-0
+              "
             />
 
             {error}
+
           </div>
         )}
 
@@ -678,64 +870,90 @@ function Profile({
         {success && (
           <div
             role="status"
+
             className="
               mt-5
+
               flex
               items-start
               gap-3
+
               rounded-xl
+
               border
               border-emerald-200
+
               bg-emerald-50/80
+
               p-4
+
               text-sm
               font-medium
+
               text-emerald-700
             "
           >
+
             <CheckCircle2
               size={19}
-              className="shrink-0"
+
+              className="
+                shrink-0
+              "
             />
 
             {success}
+
           </div>
         )}
 
 
-        {/* =============================================
+        {/* ===============================================
             GRID
-        ============================================== */}
+        ================================================ */}
 
         <div
           className="
             mt-6
+
             grid
             grid-cols-1
             gap-6
+
             xl:grid-cols-3
           "
         >
-          {/* INFORMACIÓN */}
+
+          {/* =============================================
+              INFORMACIÓN
+          ============================================== */}
 
           <Card
             opacity={80}
-            className="xl:col-span-2"
+
+            className="
+              xl:col-span-2
+            "
           >
+
             <h2
               className="
                 text-xl
                 font-bold
+
                 text-canwash-dark
               "
             >
               Información personal
             </h2>
 
+
             <p
               className="
                 mt-1
+
                 text-sm
+
                 text-canwash-muted
               "
             >
@@ -744,34 +962,51 @@ function Profile({
             </p>
 
 
+            {/* ===========================================
+                DATOS
+            ============================================ */}
+
             <div
               className="
                 mt-6
+
                 grid
                 grid-cols-1
                 gap-4
+
                 sm:grid-cols-2
               "
             >
+
               <ProfileInformation
                 icon={
-                  <User size={19} />
+                  <User
+                    size={19}
+                  />
                 }
+
                 label="Nombre"
+
                 value={
                   user?.nombre
                 }
               />
 
+
               <ProfileInformation
                 icon={
-                  <Mail size={19} />
+                  <Mail
+                    size={19}
+                  />
                 }
+
                 label="Correo electrónico"
+
                 value={
                   user?.email
                 }
               />
+
 
               <ProfileInformation
                 icon={
@@ -779,52 +1014,75 @@ function Profile({
                     size={19}
                   />
                 }
+
                 label="Tipo de cuenta"
-                value={role}
+
+                value={
+                  role
+                }
               />
+
 
               {isClient && (
                 <ProfileInformation
                   icon={
-                    <Phone size={19} />
+                    <Phone
+                      size={19}
+                    />
                   }
+
                   label="Teléfono"
+
                   value={
                     form.telefono
                   }
                 />
               )}
+
             </div>
 
 
-            {/* FORM CLIENTE */}
+            {/* ===========================================
+                FORM CLIENTE
+            ============================================ */}
 
             {isClient && (
               <form
                 onSubmit={
                   handleSubmit
                 }
+
                 className="
                   mt-7
+
                   border-t
                   border-canwash-cream
+
                   pt-2
                 "
               >
+
                 <div
                   className="
                     grid
                     grid-cols-1
+
                     gap-x-5
+
                     sm:grid-cols-2
                   "
                 >
+
+                  {/* TELÉFONO */}
+
                   <div>
+
                     <FormLabel
                       htmlFor="telefono"
                     >
                       Teléfono
                     </FormLabel>
+
 
                     <InputContainer
                       icon={
@@ -833,31 +1091,44 @@ function Profile({
                         />
                       }
                     >
+
                       <input
                         id="telefono"
+
                         name="telefono"
+
                         type="tel"
+
                         value={
                           form.telefono
                         }
+
                         onChange={
                           handleChange
                         }
+
                         placeholder="981 123 4567"
+
                         className={
                           innerInputClasses
                         }
                       />
+
                     </InputContainer>
+
                   </div>
 
 
+                  {/* COLONIA */}
+
                   <div>
+
                     <FormLabel
                       htmlFor="colonia"
                     >
                       Colonia
                     </FormLabel>
+
 
                     <InputContainer
                       icon={
@@ -866,24 +1137,37 @@ function Profile({
                         />
                       }
                     >
+
                       <input
                         id="colonia"
+
                         name="colonia"
+
                         value={
                           form.colonia
                         }
+
                         onChange={
                           handleChange
                         }
+
                         placeholder="Ej. Santa Ana"
+
                         className={
                           innerInputClasses
                         }
                       />
+
                     </InputContainer>
+
                   </div>
+
                 </div>
 
+
+                {/* =======================================
+                    DIRECCIÓN
+                ======================================== */}
 
                 <FormLabel
                   htmlFor="direccion"
@@ -891,106 +1175,167 @@ function Profile({
                   Dirección
                 </FormLabel>
 
+
                 <textarea
                   id="direccion"
+
                   name="direccion"
+
                   value={
                     form.direccion
                   }
+
                   onChange={
                     handleChange
                   }
+
                   placeholder="Calle, número y referencias"
+
                   className="
                     min-h-28
                     w-full
+
                     resize-y
+
                     rounded-xl
+
                     border
                     border-canwash-light
+
                     bg-white/70
+
                     px-4
                     py-3.5
+
                     text-sm
                     leading-6
+
                     text-canwash-text
+
                     outline-none
+
                     transition
-                    placeholder:text-slate-400
-                    focus:border-canwash
-                    focus:ring-4
-                    focus:ring-canwash/20
+
+                    placeholder:
+                    text-slate-400
+
+                    focus:
+                    border-canwash
+
+                    focus:
+                    ring-4
+
+                    focus:
+                    ring-canwash/20
                   "
                 />
 
 
+                {/* =======================================
+                    GUARDAR
+                ======================================== */}
+
                 <button
                   type="submit"
+
                   disabled={
                     saving
                   }
+
                   className="
                     mt-6
+
                     flex
                     items-center
                     justify-center
                     gap-2
+
                     rounded-xl
+
                     bg-canwash
+
                     px-5
                     py-3.5
+
                     text-sm
                     font-semibold
                     text-white
+
                     transition
+
                     hover:bg-[#7899A4]
-                    disabled:opacity-60
+
+                    disabled:
+                    opacity-60
                   "
                 >
-                  <Save size={18} />
+
+                  <Save
+                    size={18}
+                  />
+
 
                   {saving
                     ? "Guardando..."
                     : "Guardar cambios"}
+
                 </button>
+
               </form>
             )}
+
           </Card>
 
 
-          {/* SEGURIDAD */}
+          {/* =============================================
+              SEGURIDAD
+          ============================================== */}
 
-          <Card opacity={80}>
+          <Card
+            opacity={80}
+          >
+
             <div
               className="
                 grid
                 h-12
                 w-12
                 place-items-center
+
                 rounded-xl
+
                 bg-canwash-cream/80
+
                 text-canwash-dark
               "
             >
-              <KeyRound size={23} />
+              <KeyRound
+                size={23}
+              />
             </div>
+
 
             <h2
               className="
                 mt-5
+
                 text-lg
                 font-bold
+
                 text-canwash-dark
               "
             >
               Seguridad
             </h2>
 
+
             <p
               className="
                 mt-2
+
                 text-sm
                 leading-6
+
                 text-canwash-muted
               "
             >
@@ -998,77 +1343,122 @@ function Profile({
               y seguridad de tu cuenta.
             </p>
 
+
             <button
               type="button"
+
               className="
                 mt-6
+
                 w-full
+
                 rounded-xl
+
                 bg-canwash-dark
+
                 px-4
                 py-3
+
                 text-sm
                 font-semibold
                 text-white
+
                 transition
+
                 hover:bg-canwash
               "
             >
               Cambiar contraseña
             </button>
+
           </Card>
+
         </div>
 
 
-        {/* =============================================
+        {/* ===============================================
             UBICACIÓN — SOLO CLIENTE
-        ============================================== */}
+        ================================================ */}
 
         {isClient && (
-          <section className="mt-6">
-            <div className="mb-4">
+          <section
+            className="
+              mt-6
+            "
+          >
+
+            <div
+              className="
+                mb-4
+              "
+            >
+
               <span
                 className="
                   text-[10px]
                   font-bold
                   tracking-[0.2em]
+
                   text-canwash-muted
                 "
               >
                 SERVICIO A DOMICILIO
               </span>
 
+
               <h2
                 className="
                   mt-1
+
                   text-xl
                   font-bold
+
                   text-canwash-dark
                 "
               >
                 Ubicación del domicilio
               </h2>
 
+
               <p
                 className="
                   mt-1
                   max-w-2xl
+
                   text-sm
                   leading-6
+
                   text-canwash-muted
                 "
               >
-                Permite el acceso a tu
-                ubicación para visualizar
-                tu posición en el mapa.
+                Guarda tu ubicación para
+                utilizarla posteriormente
+                al solicitar servicios a
+                domicilio.
               </p>
+
             </div>
 
 
-            <LocationMap />
+            {/* ===========================================
+                MAPA
+            ============================================ */}
+
+            <LocationMap
+              client={
+                client
+              }
+
+              onLocationSaved={
+                handleLocationSaved
+              }
+            />
+
           </section>
         )}
+
       </main>
+
     </div>
   );
 }
@@ -1089,11 +1479,15 @@ function ProfileInformation({
         flex
         items-start
         gap-3
+
         rounded-xl
+
         bg-canwash-background/70
+
         p-4
       "
     >
+
       <div
         className="
           grid
@@ -1101,33 +1495,47 @@ function ProfileInformation({
           w-10
           shrink-0
           place-items-center
+
           rounded-lg
+
           bg-white/70
+
           text-canwash
         "
       >
         {icon}
       </div>
 
-      <div className="min-w-0">
+
+      <div
+        className="
+          min-w-0
+        "
+      >
+
         <span
           className="
             block
+
             text-[10px]
             font-semibold
             uppercase
             tracking-wide
+
             text-canwash-muted
           "
         >
           {label}
         </span>
 
+
         <strong
           className="
             mt-1
             block
+
             break-words
+
             text-sm
             text-canwash-dark
           "
@@ -1135,7 +1543,9 @@ function ProfileInformation({
           {value ||
             "Sin registrar"}
         </strong>
+
       </div>
+
     </div>
   );
 }
@@ -1156,31 +1566,50 @@ function InputContainer({
         min-h-12
         items-center
         gap-3
+
         rounded-xl
+
         border
         border-canwash-light
+
         bg-white/70
+
         px-4
+
         transition
-        focus-within:border-canwash
-        focus-within:ring-4
-        focus-within:ring-canwash/20
+
+        focus-within:
+        border-canwash
+
+        focus-within:
+        ring-4
+
+        focus-within:
+        ring-canwash/20
       "
     >
+
       <span
         className="
           shrink-0
+
           text-canwash
         "
       >
         {icon}
       </span>
 
+
       {children}
+
     </div>
   );
 }
 
+
+/* =========================================================
+   LABEL
+========================================================= */
 
 function FormLabel({
   htmlFor,
@@ -1188,13 +1617,18 @@ function FormLabel({
 }) {
   return (
     <label
-      htmlFor={htmlFor}
+      htmlFor={
+        htmlFor
+      }
+
       className="
         mb-2
         mt-5
         block
+
         text-sm
         font-semibold
+
         text-canwash-dark
       "
     >
@@ -1204,16 +1638,27 @@ function FormLabel({
 }
 
 
+/* =========================================================
+   INPUT CLASSES
+========================================================= */
+
 const innerInputClasses = `
   min-w-0
   flex-1
+
   border-none
+
   bg-transparent
+
   py-3.5
+
   text-sm
   text-canwash-text
+
   outline-none
+
   placeholder:text-slate-400
+
   focus:ring-0
 `;
 

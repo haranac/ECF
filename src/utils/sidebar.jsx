@@ -483,14 +483,6 @@ function getMenuItems(role) {
           <CalendarDays size={20} />
         ),
       },
-
-      {
-        view: "ubicacion",
-        text: "Mi ubicación",
-        icon: (
-          <MapPin size={20} />
-        ),
-      },
     ];
   }
 
