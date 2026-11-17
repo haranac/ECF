@@ -20,6 +20,7 @@ import { supabase } from "../lib/supabase";
 function Register({
   onRegister,
   onBack,
+  onLogin,
 }) {
   // =====================================================
   // ESTADOS
@@ -1325,7 +1326,7 @@ function Register({
                 type="button"
 
                 onClick={
-                  onBack
+                  onLogin
                 }
 
                 disabled={

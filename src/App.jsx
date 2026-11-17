@@ -195,6 +195,14 @@ function App() {
             clearAuthError();
 
             setAuthPage(
+              "landing"
+            );
+          }}
+
+          onLogin={() => {
+            clearAuthError();
+
+            setAuthPage(
               "login"
             );
           }}
@@ -236,6 +244,14 @@ function App() {
           onLogin={
             handleLogin
           }
+
+          onBack={() => {
+            clearAuthError();
+
+            setAuthPage(
+              "landing"
+            );
+          }}
 
           onRegister={() => {
             clearAuthError();

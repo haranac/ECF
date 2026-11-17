@@ -14,6 +14,7 @@ import { supabase } from "../lib/supabase";
 
 function Login({
   onLogin,
+  onBack,
   onRegister,
 }) {
   // =====================================================
@@ -489,6 +490,25 @@ function Login({
             </div>
 
           </div>
+
+
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={loading}
+            className="
+              mb-7
+              text-sm
+              font-semibold
+              text-canwash-dark
+              transition
+              hover:text-canwash
+              hover:underline
+              disabled:opacity-50
+            "
+          >
+            Volver al inicio
+          </button>
 
 
           {/* ICONO */}
