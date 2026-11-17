@@ -192,6 +192,10 @@ export default function LocationPicker({ value, onChange }) {
     };
   }, [value?.latitud, value?.longitud]);
 
+  const displayedVisitCost = route
+    ? Math.max(MINIMUM_VISIT_COST, Number(route.visitCost) || 0)
+    : 0;
+
   useEffect(() => {
     if (!map.current || !route?.geometry) return;
     routeLayer.current?.remove();
@@ -271,7 +275,7 @@ export default function LocationPicker({ value, onChange }) {
               <Clock size={15} /> {route.durationMinutes} min aprox.
             </span>
             <strong className="text-canwash-dark">
-              ${route.visitCost.toFixed(2)} MXN de traslado
+              ${displayedVisitCost.toFixed(2)} MXN de traslado
             </strong>
           </div>
           <p className="mt-2 text-xs text-canwash-muted">
