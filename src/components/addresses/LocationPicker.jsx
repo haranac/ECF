@@ -14,6 +14,7 @@ const ORIGIN = [19.8399021, -90.5336569];
 const ORIGIN_ADDRESS =
   "Av. República No. 5 privada del Heroico Colegio Militar, Barrio de Sta Ana, 24050 San Francisco de Campeche, Campeche, México";
 const PRICE_PER_KM = 10;
+const MINIMUM_VISIT_COST = 40;
 
 const pin = L.divIcon({
   className: "",
@@ -23,7 +24,11 @@ const pin = L.divIcon({
 });
 
 function calculateVisitCost(distanceKm) {
-  return Number((Number(distanceKm) * PRICE_PER_KM).toFixed(2));
+  const distanceCost = Number(distanceKm) * PRICE_PER_KM;
+
+  return Number(
+    Math.max(MINIMUM_VISIT_COST, distanceCost).toFixed(2),
+  );
 }
 
 async function searchOriginWithNominatim() {
@@ -270,7 +275,8 @@ export default function LocationPicker({ value, onChange }) {
             </strong>
           </div>
           <p className="mt-2 text-xs text-canwash-muted">
-            Origen: {ORIGIN_ADDRESS}
+            Origen: {ORIGIN_ADDRESS}. Mínimo $40 MXN; después de 4 km se
+            calcula a $10 MXN por kilómetro.
           </p>
         </div>
       )}
