@@ -275,8 +275,8 @@ export default function LocationPicker({ value, onChange }) {
             </strong>
           </div>
           <p className="mt-2 text-xs text-canwash-muted">
-            Origen: {ORIGIN_ADDRESS}. Mínimo $40 MXN; después de 4 km se
-            calcula a $10 MXN por kilómetro.
+            Origen: {ORIGIN_ADDRESS}. Costo mínimo de traslado: $40 MXN.
+            Después de 4 km se calcula a $10 MXN por kilómetro.
           </p>
         </div>
       )}
