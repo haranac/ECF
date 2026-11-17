@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -24,7 +25,7 @@ import MobileMenu from "../utils/mobileMenu";
 import Card from "../utils/card";
 import LoadingScreen from "../utils/loadingScreen";
 
-import LocationMap from "./locationMap";
+import AddressesPanel from "./addresses/AddressesPanel";
 
 
 function Profile({
@@ -84,8 +85,9 @@ function Profile({
   // CARGAR PERFIL
   // =====================================================
 
-  const loadProfile = async () => {
-    if (!user?.id_usuario) {
+  const userId = user?.id_usuario;
+  const loadProfile = useCallback(async () => {
+    if (!userId) {
       setError(
         "No se encontró el usuario."
       );
@@ -126,7 +128,7 @@ function Profile({
           `)
           .eq(
             "id_usuario",
-            user.id_usuario
+            userId
           )
           .maybeSingle();
 
@@ -164,7 +166,7 @@ function Profile({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, isClient]);
 
 
   // =====================================================
@@ -172,11 +174,8 @@ function Profile({
   // =====================================================
 
   useEffect(() => {
-    loadProfile();
-  }, [
-    user?.id_usuario,
-    role,
-  ]);
+    Promise.resolve().then(loadProfile);
+  }, [loadProfile]);
 
 
   // =====================================================
@@ -341,9 +340,9 @@ function Profile({
   // NAVEGACIÓN
   // =====================================================
 
-  const handleBack = () => {
+  const handleBack = (view) => {
     setMobileMenuOpen(false);
-    onBack?.();
+    onBack?.(typeof view === "string" ? view : undefined);
   };
 
 
@@ -1065,7 +1064,7 @@ function Profile({
             </div>
 
 
-            <LocationMap />
+            <AddressesPanel client={client} />
           </section>
         )}
       </main>

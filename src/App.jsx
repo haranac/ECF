@@ -19,6 +19,7 @@ import useAuth from "./hooks/useAuth";
 
 
 function App() {
+  const [dashboardView,setDashboardView] = useState(null);
   // =====================================================
   // AUTH
   // =====================================================
@@ -73,6 +74,7 @@ function App() {
 
 
     if (success) {
+      setDashboardView(null);
       setAppView(
         "dashboard"
       );
@@ -91,6 +93,7 @@ function App() {
 
 
       if (success) {
+        setDashboardView(null);
         setAuthPage(
           "login"
         );
@@ -106,7 +109,8 @@ function App() {
   // IR AL PERFIL
   // =====================================================
 
-  const openProfile = () => {
+  const openProfile = (view) => {
+    setDashboardView(typeof view === "string" ? view : null);
     setAppView(
       "profile"
     );
@@ -117,7 +121,8 @@ function App() {
   // VOLVER AL DASHBOARD
   // =====================================================
 
-  const closeProfile = () => {
+  const closeProfile = (view) => {
+    if (typeof view === "string") setDashboardView(view);
     setAppView(
       "dashboard"
     );
@@ -255,6 +260,7 @@ function App() {
   ) {
     return (
       <ClientDashboard
+        initialView={dashboardView || "inicio"}
         user={user}
 
         onLogout={
@@ -278,6 +284,7 @@ function App() {
   ) {
     return (
       <EmployeeDashboard
+        initialView={dashboardView || "citas"}
         user={user}
 
         onLogout={
@@ -301,6 +308,7 @@ function App() {
   ) {
     return (
       <EmployeeDashboard
+        initialView={dashboardView || "citas"}
         user={user}
 
         onLogout={

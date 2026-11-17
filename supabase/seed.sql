@@ -1,0 +1,2 @@
+-- No production customer records or authentication accounts are copied.
+-- Add synthetic local fixtures here when extending the appointment model.

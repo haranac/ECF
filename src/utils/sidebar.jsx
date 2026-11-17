@@ -486,7 +486,7 @@ function getMenuItems(role) {
 
       {
         view: "ubicacion",
-        text: "Mi ubicación",
+        text: "Mis domicilios",
         icon: (
           <MapPin size={20} />
         ),
@@ -516,6 +516,7 @@ function getMenuItems(role) {
           <CreditCard size={20} />
         ),
       },
+      { view: "recorridos", text: "Recorridos", icon: <MapPin size={20} /> },
     ];
   }
 
@@ -544,11 +545,12 @@ function getMenuItems(role) {
 
       {
         view: "empleados",
-        text: "Empleados",
+        text: "Administración",
         icon: (
           <Users size={20} />
         ),
       },
+      { view: "recorridos", text: "Recorridos", icon: <MapPin size={20} /> },
     ];
   }
 
