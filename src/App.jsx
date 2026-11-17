@@ -2,14 +2,15 @@ import { useState } from "react";
 
 import {
   AlertCircle,
+  X,
 } from "lucide-react";
 
+import LandingPage from "./components/landingPage";
 import Login from "./components/login";
 import Register from "./components/register";
 
 import ClientDashboard from "./components/clientDashboard";
 import EmployeeDashboard from "./components/employeeDashboard";
-
 import Profile from "./components/profile";
 
 import LoadingScreen from "./utils/loadingScreen";
@@ -20,43 +21,75 @@ import useAuth from "./hooks/useAuth";
 
 function App() {
   // =====================================================
-  // AUTH
+  // AUTENTICACIÓN
   // =====================================================
 
   const {
     user,
     loading,
     authError,
-
     login,
     logout,
-
     clearAuthError,
   } = useAuth();
 
 
   // =====================================================
-  // PÁGINA DE AUTENTICACIÓN
+  // PÁGINA PÚBLICA
   //
-  // login | register
+  // landing
+  // login
+  // register
   // =====================================================
 
   const [
-    authPage,
-    setAuthPage,
-  ] = useState("login");
+    publicPage,
+    setPublicPage,
+  ] = useState("landing");
 
 
   // =====================================================
-  // PANTALLA PRINCIPAL
+  // VISTA PRIVADA
   //
-  // dashboard | profile
+  // dashboard
+  // profile
   // =====================================================
 
   const [
     appView,
     setAppView,
   ] = useState("dashboard");
+
+
+  // =====================================================
+  // NAVEGACIÓN PÚBLICA
+  // =====================================================
+
+  const goToLanding = () => {
+    clearAuthError?.();
+
+    setPublicPage(
+      "landing"
+    );
+  };
+
+
+  const goToLogin = () => {
+    clearAuthError?.();
+
+    setPublicPage(
+      "login"
+    );
+  };
+
+
+  const goToRegister = () => {
+    clearAuthError?.();
+
+    setPublicPage(
+      "register"
+    );
+  };
 
 
   // =====================================================
@@ -91,19 +124,19 @@ function App() {
 
 
       if (success) {
-        setAuthPage(
-          "login"
-        );
-
         setAppView(
           "dashboard"
+        );
+
+        setPublicPage(
+          "landing"
         );
       }
     };
 
 
   // =====================================================
-  // IR AL PERFIL
+  // PERFIL
   // =====================================================
 
   const openProfile = () => {
@@ -113,10 +146,6 @@ function App() {
   };
 
 
-  // =====================================================
-  // VOLVER AL DASHBOARD
-  // =====================================================
-
   const closeProfile = () => {
     setAppView(
       "dashboard"
@@ -125,7 +154,7 @@ function App() {
 
 
   // =====================================================
-  // LOADING
+  // CARGANDO SESIÓN
   // =====================================================
 
   if (loading) {
@@ -136,34 +165,47 @@ function App() {
 
 
   // =====================================================
-  // SIN SESIÓN
+  // USUARIO NO AUTENTICADO
   // =====================================================
 
   if (!user) {
+    // ===================================================
+    // LANDING
+    // ===================================================
+
+    if (
+      publicPage === "landing"
+    ) {
+      return (
+        <LandingPage
+          onLogin={
+            goToLogin
+          }
+
+          onRegister={
+            goToRegister
+          }
+        />
+      );
+    }
+
+
     // ===================================================
     // REGISTRO
     // ===================================================
 
     if (
-      authPage === "register"
+      publicPage === "register"
     ) {
       return (
         <Register
-          onRegister={() => {
-            clearAuthError();
+          onRegister={
+            goToLogin
+          }
 
-            setAuthPage(
-              "login"
-            );
-          }}
-
-          onBack={() => {
-            clearAuthError();
-
-            setAuthPage(
-              "login"
-            );
-          }}
+          onBack={
+            goToLanding
+          }
         />
       );
     }
@@ -181,9 +223,7 @@ function App() {
         "
       >
 
-        {/* ===============================================
-            ERROR DE AUTH
-        ================================================ */}
+        {/* ERROR GLOBAL */}
 
         {authError && (
           <AuthError
@@ -203,13 +243,16 @@ function App() {
             handleLogin
           }
 
-          onRegister={() => {
-            clearAuthError();
+          onRegister={
+            goToRegister
+          }
 
-            setAuthPage(
-              "register"
-            );
-          }}
+          /*
+            Si posteriormente agregas
+            onBack a Login, puedes pasar:
+
+            onBack={goToLanding}
+          */
         />
 
       </div>
@@ -219,12 +262,6 @@ function App() {
 
   // =====================================================
   // PERFIL
-  //
-  // Mismo componente para:
-  //
-  // CLIENTE
-  // EMPLEADO
-  // ADMIN
   // =====================================================
 
   if (
@@ -334,7 +371,7 @@ function App() {
 
 
 /* =========================================================
-   ERROR DE AUTENTICACIÓN
+   ERROR GLOBAL DE AUTENTICACIÓN
 ========================================================= */
 
 function AuthError({
@@ -347,10 +384,9 @@ function AuthError({
         fixed
         left-1/2
         top-4
-        z-[100]
+        z-[200]
 
         flex
-
         w-[calc(100%-2rem)]
         max-w-lg
 
@@ -359,12 +395,12 @@ function AuthError({
         items-start
         gap-3
 
-        rounded-xl
+        rounded-2xl
 
         border
         border-red-200
 
-        bg-red-50
+        bg-red-50/95
 
         px-4
         py-3
@@ -374,11 +410,13 @@ function AuthError({
         text-red-700
 
         shadow-xl
+        backdrop-blur-md
       "
     >
 
       <AlertCircle
         size={19}
+
         className="
           mt-0.5
           shrink-0
@@ -386,7 +424,12 @@ function AuthError({
       />
 
 
-      <span className="flex-1">
+      <span
+        className="
+          flex-1
+          leading-5
+        "
+      >
         {message}
       </span>
 
@@ -398,14 +441,26 @@ function AuthError({
           onClose
         }
 
+        aria-label="Cerrar mensaje"
+
         className="
+          grid
+          h-7
+          w-7
           shrink-0
+          place-items-center
+
+          rounded-lg
+
           text-red-500
+
           transition
+
+          hover:bg-red-100
           hover:text-red-700
         "
       >
-        ×
+        <X size={16} />
       </button>
 
     </div>
