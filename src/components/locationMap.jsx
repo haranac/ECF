@@ -25,7 +25,7 @@ import {
 
 
 // =========================================================
-// DIRECCIÓN FIJA DE CAN WASH
+// DIRECCIÓN OFICIAL DE CAN WASH
 // =========================================================
 
 const CAN_WASH_ADDRESS =
@@ -158,79 +158,205 @@ function LocationMap({
   // =====================================================
   // NOMINATIM
   //
-  // CONVERTIR DIRECCIÓN CAN WASH
-  // A COORDENADAS
+  // BUSCAR LA UBICACIÓN DE CAN WASH
   // =====================================================
 
   const getCanWashLocation =
     async () => {
-      // Si ya tenemos las coordenadas,
-      // no volver a llamar a Nominatim.
+      // ===============================================
+      // YA ESTÁ EN MEMORIA
+      // ===============================================
 
       if (canWashLocation) {
         return canWashLocation;
       }
 
 
-      const params =
-        new URLSearchParams({
-          q: CAN_WASH_ADDRESS,
+      // ===============================================
+      // FUNCIÓN AUXILIAR NOMINATIM
+      // ===============================================
 
-          format:
-            "jsonv2",
+      const searchNominatim =
+        async (searchParams) => {
+          const params =
+            new URLSearchParams({
+              ...searchParams,
 
-          limit:
-            "1",
+              format:
+                "jsonv2",
 
-          countrycodes:
-            "mx",
+              limit:
+                "5",
+
+              countrycodes:
+                "mx",
+
+              addressdetails:
+                "1",
+            });
+
+
+          const response =
+            await fetch(
+              `https://nominatim.openstreetmap.org/search?${params.toString()}`,
+              {
+                headers: {
+                  Accept:
+                    "application/json",
+
+                  "Accept-Language":
+                    "es-MX,es;q=0.9",
+                },
+              }
+            );
+
+
+          if (!response.ok) {
+            throw new Error(
+              "No fue posible consultar Nominatim."
+            );
+          }
+
+
+          const data =
+            await response.json();
+
+
+          return Array.isArray(data)
+            ? data
+            : [];
+        };
+
+
+      // ===============================================
+      // INTENTO 1
+      //
+      // DIRECCIÓN SIMPLIFICADA
+      // ===============================================
+
+      let results =
+        await searchNominatim({
+          q:
+            "Avenida Republica 5, Santa Ana, San Francisco de Campeche, Campeche, 24050, Mexico",
         });
 
 
-      const response =
-        await fetch(
-          `https://nominatim.openstreetmap.org/search?${params.toString()}`,
-          {
-            headers: {
-              Accept:
-                "application/json",
-            },
-          }
-        );
-
-
-      if (!response.ok) {
-        throw new Error(
-          "No fue posible localizar Can Wash."
-        );
-      }
-
-
-      const data =
-        await response.json();
-
+      // ===============================================
+      // INTENTO 2
+      //
+      // SIN EL NÚMERO
+      // ===============================================
 
       if (
-        !Array.isArray(data) ||
-        data.length === 0
+        results.length === 0
+      ) {
+        results =
+          await searchNominatim({
+            q:
+              "Avenida Republica, Santa Ana, San Francisco de Campeche, Campeche, Mexico",
+          });
+      }
+
+
+      // ===============================================
+      // INTENTO 3
+      //
+      // BÚSQUEDA ESTRUCTURADA
+      // ===============================================
+
+      if (
+        results.length === 0
+      ) {
+        results =
+          await searchNominatim({
+            street:
+              "Avenida Republica",
+
+            city:
+              "San Francisco de Campeche",
+
+            state:
+              "Campeche",
+
+            country:
+              "Mexico",
+
+            postalcode:
+              "24050",
+          });
+      }
+
+
+      // ===============================================
+      // INTENTO 4
+      //
+      // CALLE + CIUDAD
+      // ===============================================
+
+      if (
+        results.length === 0
+      ) {
+        results =
+          await searchNominatim({
+            q:
+              "Avenida Republica, Campeche, Campeche, Mexico",
+          });
+      }
+
+
+      // ===============================================
+      // INTENTO 5
+      //
+      // BARRIO SANTA ANA
+      // ===============================================
+
+      if (
+        results.length === 0
+      ) {
+        results =
+          await searchNominatim({
+            q:
+              "Santa Ana, San Francisco de Campeche, Campeche, Mexico",
+          });
+      }
+
+
+      // ===============================================
+      // NO ENCONTRADO
+      // ===============================================
+
+      if (
+        results.length === 0
       ) {
         throw new Error(
-          "Nominatim no encontró la dirección de Can Wash."
+          "Nominatim no pudo localizar Avenida República en Campeche."
         );
       }
+
+
+      // ===============================================
+      // RESULTADO
+      // ===============================================
+
+      const result =
+        results[0];
 
 
       const latitude =
         Number(
-          data[0].lat
+          result.lat
         );
 
 
       const longitude =
         Number(
-          data[0].lon
+          result.lon
         );
 
+
+      // ===============================================
+      // VALIDAR
+      // ===============================================
 
       if (
         !Number.isFinite(
@@ -241,33 +367,54 @@ function LocationMap({
         )
       ) {
         throw new Error(
-          "Las coordenadas obtenidas para Can Wash no son válidas."
+          "Nominatim devolvió coordenadas inválidas."
         );
       }
 
 
-      const result = {
+      const locationResult = {
         latitude,
         longitude,
 
         displayName:
-          data[0].display_name,
+          result.display_name ||
+          CAN_WASH_ADDRESS,
       };
 
 
-      setCanWashLocation(
+      // ===============================================
+      // DEBUG
+      // ===============================================
+
+      console.log(
+        "Can Wash encontrado:",
+        locationResult
+      );
+
+
+      console.log(
+        "Resultado completo de Nominatim:",
         result
       );
 
 
-      return result;
+      // ===============================================
+      // GUARDAR EN ESTADO
+      // ===============================================
+
+      setCanWashLocation(
+        locationResult
+      );
+
+
+      return locationResult;
     };
 
 
   // =====================================================
   // OSRM
   //
-  // CALCULAR RUTA REAL POR CALLES
+  // CALCULAR RUTA POR CALLES
   // =====================================================
 
   const calculateRoute =
@@ -282,7 +429,7 @@ function LocationMap({
 
 
         // ===============================================
-        // OBTENER COORDENADAS DE CAN WASH
+        // OBTENER CAN WASH
         // ===============================================
 
         const origin =
@@ -290,21 +437,19 @@ function LocationMap({
 
 
         // ===============================================
-        // IMPORTANTE:
+        // OSRM UTILIZA:
         //
-        // OSRM utiliza:
-        //
-        // longitud,latitud
-        //
-        // NO:
-        //
-        // latitud,longitud
+        // LONGITUD,LATITUD
         // ===============================================
 
         const coordinates =
           `${origin.longitude},${origin.latitude};` +
           `${clientLongitude},${clientLatitude}`;
 
+
+        // ===============================================
+        // URL OSRM
+        // ===============================================
 
         const url =
           "https://router.project-osrm.org" +
@@ -332,6 +477,10 @@ function LocationMap({
           await response.json();
 
 
+        // ===============================================
+        // VALIDAR RESPUESTA
+        // ===============================================
+
         if (
           data.code !== "Ok" ||
           !data.routes?.length
@@ -348,6 +497,8 @@ function LocationMap({
 
         // ===============================================
         // DISTANCIA
+        //
+        // OSRM -> METROS
         // ===============================================
 
         const distanceKm =
@@ -356,7 +507,9 @@ function LocationMap({
 
 
         // ===============================================
-        // DURACIÓN
+        // TIEMPO
+        //
+        // OSRM -> SEGUNDOS
         // ===============================================
 
         const durationMinutes =
@@ -367,7 +520,7 @@ function LocationMap({
 
 
         // ===============================================
-        // GUARDAR INFORMACIÓN
+        // RESULTADO
         // ===============================================
 
         const result = {
@@ -388,6 +541,12 @@ function LocationMap({
         };
 
 
+        console.log(
+          "Ruta calculada:",
+          result
+        );
+
+
         setRouteInfo(
           result
         );
@@ -395,7 +554,9 @@ function LocationMap({
 
         return result;
 
-      } catch (routeError) {
+      } catch (
+        routeError
+      ) {
         console.error(
           "Error calculando ruta:",
           routeError
@@ -457,6 +618,10 @@ function LocationMap({
       }
 
 
+      // ===============================================
+      // ACTUALIZAR PROFILE
+      // ===============================================
+
       onLocationSaved?.({
         latitude,
         longitude,
@@ -465,7 +630,7 @@ function LocationMap({
 
 
   // =====================================================
-  // SOLICITAR UBICACIÓN
+  // SOLICITAR UBICACIÓN DEL CLIENTE
   // =====================================================
 
   const requestLocation =
@@ -475,7 +640,7 @@ function LocationMap({
 
 
       // ===============================================
-      // GEOLOCATION DISPONIBLE
+      // GEOLOCATION
       // ===============================================
 
       if (
@@ -509,6 +674,10 @@ function LocationMap({
       );
 
 
+      // ===============================================
+      // PEDIR PERMISO AL NAVEGADOR
+      // ===============================================
+
       navigator.geolocation
         .getCurrentPosition(
           // =============================================
@@ -527,7 +696,7 @@ function LocationMap({
 
 
             // ===========================================
-            // MOSTRAR UBICACIÓN
+            // MOSTRAR UBICACIÓN INMEDIATAMENTE
             // ===========================================
 
             setLocation({
@@ -535,6 +704,15 @@ function LocationMap({
               longitude,
               accuracy,
             });
+
+
+            // ===========================================
+            // BORRAR RUTA ANTERIOR
+            // ===========================================
+
+            setRouteInfo(
+              null
+            );
 
 
             try {
@@ -558,21 +736,25 @@ function LocationMap({
               );
 
 
+              // =========================================
+              // ÉXITO
+              // =========================================
+
               setSuccess(
                 "Tu ubicación se guardó y la ruta fue calculada correctamente."
               );
 
             } catch (
-              locationSaveError
+              locationError
             ) {
               console.error(
                 "Error procesando ubicación:",
-                locationSaveError
+                locationError
               );
 
 
               setError(
-                locationSaveError
+                locationError
                   .message ||
                 "No fue posible procesar tu ubicación."
               );
@@ -586,7 +768,7 @@ function LocationMap({
 
 
           // =============================================
-          // ERROR GEOLOCATION
+          // ERROR DE GEOLOCALIZACIÓN
           // =============================================
 
           (
@@ -636,7 +818,7 @@ function LocationMap({
 
 
           // =============================================
-          // CONFIGURACIÓN
+          // OPCIONES
           // =============================================
 
           {
@@ -654,10 +836,7 @@ function LocationMap({
 
 
   // =====================================================
-  // CALCULAR RUTA PARA UBICACIÓN GUARDADA
-  //
-  // Si el cliente ya tenía ubicación en Supabase,
-  // calculamos automáticamente la ruta.
+  // CALCULAR RUTA DE UBICACIÓN YA GUARDADA
   // =====================================================
 
   useEffect(() => {
@@ -707,6 +886,12 @@ function LocationMap({
             "No se pudo cargar la ruta guardada:",
             routeError
           );
+
+
+          setError(
+            routeError.message ||
+            "No fue posible calcular la ruta."
+          );
         }
       };
 
@@ -745,26 +930,29 @@ function LocationMap({
       location;
 
 
-    // ===================================================
+    // ===============================================
     // CREAR MAPA
-    // ===================================================
+    // ===============================================
 
-    if (!mapRef.current) {
+    if (
+      !mapRef.current
+    ) {
       mapRef.current =
         L.map(
           mapContainerRef.current
-        ).setView(
-          [
-            latitude,
-            longitude,
-          ],
-          15
-        );
+        )
+          .setView(
+            [
+              latitude,
+              longitude,
+            ],
+            15
+          );
 
 
-      // ===============================================
+      // =============================================
       // OPENSTREETMAP
-      // ===============================================
+      // =============================================
 
       L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -775,9 +963,10 @@ function LocationMap({
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }
-      ).addTo(
-        mapRef.current
-      );
+      )
+        .addTo(
+          mapRef.current
+        );
 
     } else {
       mapRef.current
@@ -791,9 +980,9 @@ function LocationMap({
     }
 
 
-    // ===================================================
-    // MARCADOR CLIENTE
-    // ===================================================
+    // ===============================================
+    // MARCADOR CLIENTE ANTERIOR
+    // ===============================================
 
     if (
       clientMarkerRef.current
@@ -802,6 +991,10 @@ function LocationMap({
         .remove();
     }
 
+
+    // ===============================================
+    // MARCADOR CLIENTE
+    // ===============================================
 
     clientMarkerRef.current =
       L.marker([
@@ -812,13 +1005,13 @@ function LocationMap({
           mapRef.current
         )
         .bindPopup(
-          "<strong>Tu ubicación</strong>"
+          "<strong>Tu domicilio</strong>"
         );
 
 
-    // ===================================================
+    // ===============================================
     // CORREGIR TAMAÑO
-    // ===================================================
+    // ===============================================
 
     window.setTimeout(
       () => {
@@ -846,24 +1039,25 @@ function LocationMap({
     }
 
 
-    // ===================================================
-    // BORRAR RUTA ANTERIOR
-    // ===================================================
+    // ===============================================
+    // ELIMINAR RUTA ANTERIOR
+    // ===============================================
 
     if (
       routeLayerRef.current
     ) {
       routeLayerRef.current
         .remove();
+
 
       routeLayerRef.current =
         null;
     }
 
 
-    // ===================================================
-    // BORRAR MARCADOR CAN WASH
-    // ===================================================
+    // ===============================================
+    // ELIMINAR MARCADOR ANTERIOR DE CAN WASH
+    // ===============================================
 
     if (
       canWashMarkerRef.current
@@ -871,14 +1065,15 @@ function LocationMap({
       canWashMarkerRef.current
         .remove();
 
+
       canWashMarkerRef.current =
         null;
     }
 
 
-    // ===================================================
+    // ===============================================
     // MARCADOR CAN WASH
-    // ===================================================
+    // ===============================================
 
     canWashMarkerRef.current =
       L.marker([
@@ -904,9 +1099,9 @@ function LocationMap({
         );
 
 
-    // ===================================================
-    // RUTA GEOJSON
-    // ===================================================
+    // ===============================================
+    // DIBUJAR RUTA GEOJSON
+    // ===============================================
 
     routeLayerRef.current =
       L.geoJSON(
@@ -929,9 +1124,9 @@ function LocationMap({
         );
 
 
-    // ===================================================
-    // MOSTRAR TODA LA RUTA
-    // ===================================================
+    // ===============================================
+    // AJUSTAR MAPA A TODA LA RUTA
+    // ===============================================
 
     const bounds =
       routeLayerRef.current
@@ -955,9 +1150,9 @@ function LocationMap({
     }
 
 
-    // ===================================================
+    // ===============================================
     // POPUP CLIENTE
-    // ===================================================
+    // ===============================================
 
     clientMarkerRef.current
       ?.bindPopup(
@@ -1017,7 +1212,7 @@ function LocationMap({
     >
 
       {/* =================================================
-          HEADER
+          ENCABEZADO
       ================================================== */}
 
       <div
@@ -1226,6 +1421,7 @@ function LocationMap({
 
             text-sm
             font-medium
+
             text-emerald-700
           "
         >
@@ -1252,7 +1448,8 @@ function LocationMap({
           SIN UBICACIÓN
       ================================================== */}
 
-      {!location && !error && (
+      {!location &&
+        !error && (
         <div
           className="
             mt-6
@@ -1364,7 +1561,7 @@ function LocationMap({
 
 
           {/* =============================================
-              UBICACIÓN
+              COORDENADAS DEL CLIENTE
           ============================================== */}
 
           <div
@@ -1457,7 +1654,7 @@ function LocationMap({
 
 
           {/* =============================================
-              INFORMACIÓN DE RUTA
+              INFORMACIÓN DE LA RUTA
           ============================================== */}
 
           {routeInfo &&
@@ -1479,7 +1676,9 @@ function LocationMap({
               "
             >
 
-              {/* HEADER */}
+              {/* =========================================
+                  CABECERA
+              ========================================== */}
 
               <div
                 className="
@@ -1540,7 +1739,9 @@ function LocationMap({
               </div>
 
 
-              {/* DATOS */}
+              {/* =========================================
+                  DISTANCIA / TIEMPO
+              ========================================== */}
 
               <div
                 className="
@@ -1713,7 +1914,9 @@ function LocationMap({
               </div>
 
 
-              {/* ORIGEN */}
+              {/* =========================================
+                  ORIGEN
+              ========================================== */}
 
               <div
                 className="
@@ -1753,13 +1956,35 @@ function LocationMap({
                     text-canwash-dark
                   "
                 >
-                  Av. República No. 5
-                  privada del Heroico
-                  Colegio Militar,
-                  Barrio de Santa Ana,
-                  San Francisco de
-                  Campeche.
+                  {CAN_WASH_ADDRESS}
                 </p>
+
+
+                {/* =======================================
+                    DIRECCIÓN QUE ENCONTRÓ NOMINATIM
+                ======================================== */}
+
+                {routeInfo
+                  .origin
+                  .displayName && (
+                  <p
+                    className="
+                      mt-2
+
+                      text-xs
+                      leading-5
+
+                      text-canwash-muted
+                    "
+                  >
+                    Nominatim:{" "}
+                    {
+                      routeInfo
+                        .origin
+                        .displayName
+                    }
+                  </p>
+                )}
 
               </div>
 
