@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   ArrowRight,
@@ -12,10 +15,6 @@ import {
   X,
 } from "lucide-react";
 
-// =========================================================
-// IMÁGENES
-// =========================================================
-
 import landscape from "../assets/canwash-landscape.png";
 import catImage from "../assets/canwash-cat.png";
 import dogImage from "../assets/canwash-dog.png";
@@ -26,13 +25,51 @@ function LandingPage({
   onRegister,
 }) {
   // =====================================================
-  // MENÚ MÓVIL
+  // ESTADOS
   // =====================================================
 
   const [
     mobileMenuOpen,
     setMobileMenuOpen,
   ] = useState(false);
+
+  const [
+    showBenefits,
+    setShowBenefits,
+  ] = useState(true);
+
+
+  // =====================================================
+  // OCULTAR BENEFICIOS AL HACER SCROLL
+  // =====================================================
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBenefits(
+        window.scrollY < 80
+      );
+    };
+
+
+    handleScroll();
+
+
+    window.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      }
+    );
+
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+  }, []);
 
 
   // =====================================================
@@ -83,7 +120,6 @@ function LandingPage({
           relative
           min-h-[900px]
           overflow-hidden
-
           lg:min-h-screen
         "
       >
@@ -114,9 +150,7 @@ function LandingPage({
           "
         >
 
-          {/* =============================================
-              LOGO
-          ============================================== */}
+          {/* LOGO */}
 
           <button
             type="button"
@@ -131,8 +165,6 @@ function LandingPage({
               text-left
             "
           >
-
-            {/* PATA */}
 
             <div
               className="
@@ -155,8 +187,6 @@ function LandingPage({
               />
             </div>
 
-
-            {/* NOMBRE */}
 
             <div>
               <strong
@@ -199,9 +229,7 @@ function LandingPage({
           </button>
 
 
-          {/* =============================================
-              NAVEGACIÓN DESKTOP
-          ============================================== */}
+          {/* NAVEGACIÓN DESKTOP */}
 
           <nav
             className="
@@ -263,9 +291,7 @@ function LandingPage({
           </nav>
 
 
-          {/* =============================================
-              AUTENTICACIÓN DESKTOP
-          ============================================== */}
+          {/* AUTH DESKTOP */}
 
           <div
             className="
@@ -366,9 +392,7 @@ function LandingPage({
           </div>
 
 
-          {/* =============================================
-              BOTÓN MENÚ MÓVIL
-          ============================================== */}
+          {/* BOTÓN MÓVIL */}
 
           <button
             type="button"
@@ -570,7 +594,7 @@ function LandingPage({
 
 
         {/* ===============================================
-            HERO - TEXTO
+            TEXTO HERO
         ================================================ */}
 
         <div
@@ -732,7 +756,7 @@ function LandingPage({
 
 
         {/* ===============================================
-            PERRO Y GATO
+            PERRO Y GATO INTERACTIVOS
         ================================================ */}
 
         <div
@@ -745,9 +769,7 @@ function LandingPage({
             z-20
 
             flex
-
             translate-x-1/2
-
             items-end
             justify-center
 
@@ -758,9 +780,7 @@ function LandingPage({
           "
         >
 
-          {/* =============================================
-              GATO
-          ============================================== */}
+          {/* GATO */}
 
           <PetButton
             image={catImage}
@@ -780,9 +800,7 @@ function LandingPage({
           />
 
 
-          {/* =============================================
-              PERRO
-          ============================================== */}
+          {/* PERRO */}
 
           <PetButton
             image={dogImage}
@@ -810,11 +828,12 @@ function LandingPage({
 
 
         {/* ===============================================
-            BENEFICIOS
+            BARRA DE BENEFICIOS
+            DESAPARECE AL HACER SCROLL
         ================================================ */}
 
         <div
-          className="
+          className={`
             absolute
             bottom-0
             left-0
@@ -827,7 +846,24 @@ function LandingPage({
             bg-[#cce8e3]/90
 
             backdrop-blur-md
-          "
+
+            transition-all
+            duration-500
+            ease-out
+
+            ${
+              showBenefits
+                ? `
+                  translate-y-0
+                  opacity-100
+                `
+                : `
+                  pointer-events-none
+                  translate-y-full
+                  opacity-0
+                `
+            }
+          `}
         >
 
           <div
@@ -1442,8 +1478,11 @@ function LandingPage({
             onClick={onLogin}
             className="
               font-semibold
+
               text-[#153b39]
+
               transition
+
               hover:text-[#14847f]
             "
           >
@@ -1460,7 +1499,7 @@ function LandingPage({
 
 
 /* =========================================================
-   PERRO / GATO INTERACTIVO
+   PERRO / GATO
 ========================================================= */
 
 function PetButton({
@@ -1518,8 +1557,6 @@ function PetButton({
         "
       />
 
-
-      {/* TEXTO */}
 
       <span
         className="
@@ -1655,7 +1692,7 @@ function MobileNavButton({
 
 
 /* =========================================================
-   BENEFICIOS
+   BENEFICIO
 ========================================================= */
 
 function Feature({
@@ -1725,7 +1762,7 @@ function Feature({
 
 
 /* =========================================================
-   ENCABEZADO DE SECCIÓN
+   ENCABEZADO
 ========================================================= */
 
 function SectionHeader({
@@ -1825,6 +1862,7 @@ function ServiceCard({
 
         hover:-translate-y-1
         hover:border-[#14847f]/30
+
         hover:shadow-xl
         hover:shadow-[#153b39]/5
       "
