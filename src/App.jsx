@@ -6,6 +6,7 @@ import {
 
 import Login from "./components/login";
 import Register from "./components/register";
+import LandingPage from "./components/landingPage";
 
 import ClientDashboard from "./components/clientDashboard";
 import EmployeeDashboard from "./components/employeeDashboard";
@@ -39,13 +40,13 @@ function App() {
   // =====================================================
   // PÁGINA DE AUTENTICACIÓN
   //
-  // login | register
+  // landing | login | register
   // =====================================================
 
   const [
     authPage,
     setAuthPage,
-  ] = useState("login");
+  ] = useState("landing");
 
 
   // =====================================================
@@ -145,6 +146,34 @@ function App() {
   // =====================================================
 
   if (!user) {
+    // ===================================================
+    // LANDING PÚBLICA
+    // ===================================================
+
+    if (
+      authPage === "landing"
+    ) {
+      return (
+        <LandingPage
+          onLogin={() => {
+            clearAuthError();
+
+            setAuthPage(
+              "login"
+            );
+          }}
+
+          onRegister={() => {
+            clearAuthError();
+
+            setAuthPage(
+              "register"
+            );
+          }}
+        />
+      );
+    }
+
     // ===================================================
     // REGISTRO
     // ===================================================
