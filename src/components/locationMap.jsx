@@ -24,25 +24,16 @@ import {
 } from "../lib/supabase";
 
 
-// =========================================================
-// DIRECCIÓN OFICIAL DE CAN WASH
-// =========================================================
 
+//Dirección de partida Can-Wash
 const CAN_WASH_ADDRESS =
   "Av. República No. 5 privada del Heroico Colegio Militar, Barrio de Sta Ana, 24050 San Francisco de Campeche, Campeche, México";
 
-
-// =========================================================
-// COMPONENTE
-// =========================================================
 
 function LocationMap({
   client,
   onLocationSaved,
 }) {
-  // =====================================================
-  // ESTADOS
-  // =====================================================
 
   const [
     location,
@@ -86,10 +77,6 @@ function LocationMap({
   ] = useState("");
 
 
-  // =====================================================
-  // REFERENCIAS LEAFLET
-  // =====================================================
-
   const mapContainerRef =
     useRef(null);
 
@@ -105,11 +92,7 @@ function LocationMap({
   const routeLayerRef =
     useRef(null);
 
-
-  // =====================================================
-  // CARGAR UBICACIÓN GUARDADA DEL CLIENTE
-  // =====================================================
-
+//Carga de ubicación guardada
   useEffect(() => {
     if (
       client?.latitud == null ||
@@ -155,27 +138,13 @@ function LocationMap({
   ]);
 
 
-  // =====================================================
-  // NOMINATIM
-  //
-  // BUSCAR LA UBICACIÓN DE CAN WASH
-  // =====================================================
-
+ //Convertir la ubicación en coordenadas con Nominatim
   const getCanWashLocation =
     async () => {
-      // ===============================================
-      // YA ESTÁ EN MEMORIA
-      // ===============================================
 
       if (canWashLocation) {
         return canWashLocation;
       }
-
-
-      // ===============================================
-      // FUNCIÓN AUXILIAR NOMINATIM
-      // ===============================================
-
       const searchNominatim =
         async (searchParams) => {
           const params =
@@ -228,24 +197,11 @@ function LocationMap({
         };
 
 
-      // ===============================================
-      // INTENTO 1
-      //
-      // DIRECCIÓN SIMPLIFICADA
-      // ===============================================
-
       let results =
         await searchNominatim({
           q:
             "Avenida Republica 5, Santa Ana, San Francisco de Campeche, Campeche, 24050, Mexico",
         });
-
-
-      // ===============================================
-      // INTENTO 2
-      //
-      // SIN EL NÚMERO
-      // ===============================================
 
       if (
         results.length === 0
@@ -256,13 +212,6 @@ function LocationMap({
               "Avenida Republica, Santa Ana, San Francisco de Campeche, Campeche, Mexico",
           });
       }
-
-
-      // ===============================================
-      // INTENTO 3
-      //
-      // BÚSQUEDA ESTRUCTURADA
-      // ===============================================
 
       if (
         results.length === 0
@@ -286,13 +235,6 @@ function LocationMap({
           });
       }
 
-
-      // ===============================================
-      // INTENTO 4
-      //
-      // CALLE + CIUDAD
-      // ===============================================
-
       if (
         results.length === 0
       ) {
@@ -302,13 +244,6 @@ function LocationMap({
               "Avenida Republica, Campeche, Campeche, Mexico",
           });
       }
-
-
-      // ===============================================
-      // INTENTO 5
-      //
-      // BARRIO SANTA ANA
-      // ===============================================
 
       if (
         results.length === 0
@@ -321,10 +256,6 @@ function LocationMap({
       }
 
 
-      // ===============================================
-      // NO ENCONTRADO
-      // ===============================================
-
       if (
         results.length === 0
       ) {
@@ -333,10 +264,6 @@ function LocationMap({
         );
       }
 
-
-      // ===============================================
-      // RESULTADO
-      // ===============================================
 
       const result =
         results[0];
@@ -353,10 +280,6 @@ function LocationMap({
           result.lon
         );
 
-
-      // ===============================================
-      // VALIDAR
-      // ===============================================
 
       if (
         !Number.isFinite(
@@ -382,10 +305,6 @@ function LocationMap({
       };
 
 
-      // ===============================================
-      // DEBUG
-      // ===============================================
-
       console.log(
         "Can Wash encontrado:",
         locationResult
@@ -397,11 +316,6 @@ function LocationMap({
         result
       );
 
-
-      // ===============================================
-      // GUARDAR EN ESTADO
-      // ===============================================
-
       setCanWashLocation(
         locationResult
       );
@@ -411,12 +325,7 @@ function LocationMap({
     };
 
 
-  // =====================================================
-  // OSRM
-  //
-  // CALCULAR RUTA POR CALLES
-  // =====================================================
-
+//Cálculo de ruta
   const calculateRoute =
     async (
       clientLatitude,
@@ -428,28 +337,14 @@ function LocationMap({
         );
 
 
-        // ===============================================
-        // OBTENER CAN WASH
-        // ===============================================
-
         const origin =
           await getCanWashLocation();
 
-
-        // ===============================================
-        // OSRM UTILIZA:
-        //
-        // LONGITUD,LATITUD
-        // ===============================================
 
         const coordinates =
           `${origin.longitude},${origin.latitude};` +
           `${clientLongitude},${clientLatitude}`;
 
-
-        // ===============================================
-        // URL OSRM
-        // ===============================================
 
         const url =
           "https://router.project-osrm.org" +
@@ -477,10 +372,6 @@ function LocationMap({
           await response.json();
 
 
-        // ===============================================
-        // VALIDAR RESPUESTA
-        // ===============================================
-
         if (
           data.code !== "Ok" ||
           !data.routes?.length
@@ -493,13 +384,6 @@ function LocationMap({
 
         const route =
           data.routes[0];
-
-
-        // ===============================================
-        // DISTANCIA
-        //
-        // OSRM -> METROS
-        // ===============================================
 
         const distanceKm =
           route.distance /
@@ -629,19 +513,10 @@ function LocationMap({
     };
 
 
-  // =====================================================
-  // SOLICITAR UBICACIÓN DEL CLIENTE
-  // =====================================================
-
   const requestLocation =
     () => {
       setError("");
       setSuccess("");
-
-
-      // ===============================================
-      // GEOLOCATION
-      // ===============================================
 
       if (
         !navigator.geolocation
@@ -653,10 +528,6 @@ function LocationMap({
         return;
       }
 
-
-      // ===============================================
-      // CLIENTE
-      // ===============================================
 
       if (
         !client?.id_cliente
@@ -674,16 +545,8 @@ function LocationMap({
       );
 
 
-      // ===============================================
-      // PEDIR PERMISO AL NAVEGADOR
-      // ===============================================
-
       navigator.geolocation
         .getCurrentPosition(
-          // =============================================
-          // UBICACIÓN OBTENIDA
-          // =============================================
-
           async (
             position
           ) => {
@@ -694,21 +557,11 @@ function LocationMap({
             } =
               position.coords;
 
-
-            // ===========================================
-            // MOSTRAR UBICACIÓN INMEDIATAMENTE
-            // ===========================================
-
             setLocation({
               latitude,
               longitude,
               accuracy,
             });
-
-
-            // ===========================================
-            // BORRAR RUTA ANTERIOR
-            // ===========================================
 
             setRouteInfo(
               null
@@ -716,9 +569,6 @@ function LocationMap({
 
 
             try {
-              // =========================================
-              // GUARDAR EN SUPABASE
-              // =========================================
 
               await saveLocation(
                 latitude,
@@ -726,19 +576,11 @@ function LocationMap({
               );
 
 
-              // =========================================
-              // CALCULAR RUTA
-              // =========================================
-
               await calculateRoute(
                 latitude,
                 longitude
               );
 
-
-              // =========================================
-              // ÉXITO
-              // =========================================
 
               setSuccess(
                 "Tu ubicación se guardó y la ruta fue calculada correctamente."
@@ -766,10 +608,6 @@ function LocationMap({
             }
           },
 
-
-          // =============================================
-          // ERROR DE GEOLOCALIZACIÓN
-          // =============================================
 
           (
             locationError
