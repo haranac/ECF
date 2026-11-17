@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import {
   ArrowRight,
@@ -15,29 +12,23 @@ import {
   X,
 } from "lucide-react";
 
+import ImageCard from "../utils/imageCard";
+
 import landscape from "../assets/canwash-landscape.png";
 import catImage from "../assets/canwash-cat.png";
 import dogImage from "../assets/canwash-dog.png";
 
-
-function LandingPage({
-  onLogin,
-  onRegister,
-}) {
+function LandingPage({ onLogin, onRegister }) {
   // =====================================================
   // ESTADOS
   // =====================================================
 
-  const [
-    mobileMenuOpen,
-    setMobileMenuOpen,
-  ] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [
-    showBenefits,
-    setShowBenefits,
-  ] = useState(true);
+  const [showBenefits, setShowBenefits] = useState(true);
 
+  // null | "cat" | "dog"
+  const [selectedPet, setSelectedPet] = useState(null);
 
   // =====================================================
   // OCULTAR BENEFICIOS AL HACER SCROLL
@@ -45,32 +36,19 @@ function LandingPage({
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowBenefits(
-        window.scrollY < 80
-      );
+      setShowBenefits(window.scrollY < 80);
     };
-
 
     handleScroll();
 
-
-    window.addEventListener(
-      "scroll",
-      handleScroll,
-      {
-        passive: true,
-      }
-    );
-
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener(
-        "scroll",
-        handleScroll
-      );
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
 
   // =====================================================
   // CERRAR MENÚ
@@ -80,21 +58,51 @@ function LandingPage({
     setMobileMenuOpen(false);
   };
 
-
   // =====================================================
-  // SCROLL
+  // SCROLL SUAVE
   // =====================================================
 
   const scrollTo = (section) => {
     closeMenu();
 
-    document
-      .getElementById(section)
-      ?.scrollIntoView({
-        behavior: "smooth",
-      });
+    document.getElementById(section)?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
 
+  // =====================================================
+  // ABRIR TARJETA DE MASCOTA
+  // =====================================================
+
+  const openCatCard = () => {
+    setSelectedPet("cat");
+  };
+
+  const openDogCard = () => {
+    setSelectedPet("dog");
+  };
+
+  const closePetCard = () => {
+    setSelectedPet(null);
+  };
+
+  // =====================================================
+  // DATOS DEL MODAL
+  // =====================================================
+
+  const modalTitle =
+    selectedPet === "cat"
+      ? "Estética felina"
+      : selectedPet === "dog"
+        ? "Estética canina"
+        : "";
+
+  const modalImages =
+    selectedPet === "cat"
+      ? [catImage, catImage, catImage]
+      : selectedPet === "dog"
+        ? [dogImage, dogImage, dogImage]
+        : [];
 
   // =====================================================
   // INTERFAZ
@@ -109,7 +117,6 @@ function LandingPage({
         text-[#30231c]
       "
     >
-
       {/* =================================================
           HERO
       ================================================== */}
@@ -120,10 +127,11 @@ function LandingPage({
           relative
           min-h-[900px]
           overflow-hidden
+          bg-[#fffaf2]
+
           lg:min-h-screen
         "
       >
-
         {/* ===============================================
             HEADER
         ================================================ */}
@@ -149,14 +157,11 @@ function LandingPage({
             lg:px-12
           "
         >
-
           {/* LOGO */}
 
           <button
             type="button"
-            onClick={() =>
-              scrollTo("inicio")
-            }
+            onClick={() => scrollTo("inicio")}
             className="
               group
               flex
@@ -165,7 +170,6 @@ function LandingPage({
               text-left
             "
           >
-
             <div
               className="
                 grid
@@ -181,12 +185,8 @@ function LandingPage({
                 group-hover:scale-110
               "
             >
-              <PawPrint
-                size={43}
-                strokeWidth={1.8}
-              />
+              <PawPrint size={43} strokeWidth={1.8} />
             </div>
-
 
             <div>
               <strong
@@ -207,7 +207,6 @@ function LandingPage({
                 Can Wash
               </strong>
 
-
               <span
                 className="
                   mt-1
@@ -225,11 +224,11 @@ function LandingPage({
                 ESTÉTICA CANINA Y FELINA
               </span>
             </div>
-
           </button>
 
-
-          {/* NAVEGACIÓN DESKTOP */}
+          {/* =============================================
+              NAVEGACIÓN DESKTOP
+          ============================================== */}
 
           <nav
             className="
@@ -243,55 +242,20 @@ function LandingPage({
               lg:flex
             "
           >
+            <NavButton onClick={() => scrollTo("inicio")}>Inicio</NavButton>
 
-            <NavButton
-              onClick={() =>
-                scrollTo("inicio")
-              }
-            >
-              Inicio
-            </NavButton>
-
-
-            <NavButton
-              onClick={() =>
-                scrollTo("servicios")
-              }
-            >
+            <NavButton onClick={() => scrollTo("servicios")}>
               Servicios
             </NavButton>
 
+            <NavButton onClick={() => scrollTo("nosotros")}>Nosotros</NavButton>
 
-            <NavButton
-              onClick={() =>
-                scrollTo("nosotros")
-              }
-            >
-              Nosotros
-            </NavButton>
-
-
-            <NavButton
-              onClick={() =>
-                scrollTo("galeria")
-              }
-            >
-              Galería
-            </NavButton>
-
-
-            <NavButton
-              onClick={() =>
-                scrollTo("contacto")
-              }
-            >
-              Contacto
-            </NavButton>
-
+            <NavButton onClick={() => scrollTo("contacto")}>Contacto</NavButton>
           </nav>
 
-
-          {/* AUTH DESKTOP */}
+          {/* =============================================
+              LOGIN / REGISTRO
+          ============================================== */}
 
           <div
             className="
@@ -302,7 +266,6 @@ function LandingPage({
               lg:flex
             "
           >
-
             <button
               type="button"
               onClick={onLogin}
@@ -316,13 +279,13 @@ function LandingPage({
                 text-[#30231c]
 
                 transition
+                duration-300
 
                 hover:text-[#14847f]
               "
             >
               Iniciar sesión
             </button>
-
 
             <button
               type="button"
@@ -355,12 +318,8 @@ function LandingPage({
               "
             >
               Registrarse
-
-              <ArrowRight
-                size={19}
-              />
+              <ArrowRight size={19} />
             </button>
-
 
             <button
               type="button"
@@ -377,6 +336,8 @@ function LandingPage({
                 bg-[#14847f]
                 text-white
 
+                shadow-md
+
                 transition
                 duration-300
 
@@ -384,24 +345,17 @@ function LandingPage({
                 hover:bg-[#106f6b]
               "
             >
-              <PawPrint
-                size={24}
-              />
+              <PawPrint size={24} />
             </button>
-
           </div>
 
-
-          {/* BOTÓN MÓVIL */}
+          {/* =============================================
+              BOTÓN MENÚ MÓVIL
+          ============================================== */}
 
           <button
             type="button"
-            onClick={() =>
-              setMobileMenuOpen(
-                (current) =>
-                  !current
-              )
-            }
+            onClick={() => setMobileMenuOpen((current) => !current)}
             aria-label="Abrir menú"
             className="
               grid
@@ -420,15 +374,9 @@ function LandingPage({
               lg:hidden
             "
           >
-            {mobileMenuOpen ? (
-              <X size={23} />
-            ) : (
-              <Menu size={23} />
-            )}
+            {mobileMenuOpen ? <X size={23} /> : <Menu size={23} />}
           </button>
-
         </header>
-
 
         {/* ===============================================
             MENÚ MÓVIL
@@ -459,7 +407,6 @@ function LandingPage({
               lg:hidden
             "
           >
-
             <nav
               className="
                 flex
@@ -467,53 +414,22 @@ function LandingPage({
                 gap-1
               "
             >
-
-              <MobileNavButton
-                onClick={() =>
-                  scrollTo("inicio")
-                }
-              >
+              <MobileNavButton onClick={() => scrollTo("inicio")}>
                 Inicio
               </MobileNavButton>
 
-
-              <MobileNavButton
-                onClick={() =>
-                  scrollTo("servicios")
-                }
-              >
+              <MobileNavButton onClick={() => scrollTo("servicios")}>
                 Servicios
               </MobileNavButton>
 
-
-              <MobileNavButton
-                onClick={() =>
-                  scrollTo("nosotros")
-                }
-              >
+              <MobileNavButton onClick={() => scrollTo("nosotros")}>
                 Nosotros
               </MobileNavButton>
 
-
-              <MobileNavButton
-                onClick={() =>
-                  scrollTo("galeria")
-                }
-              >
-                Galería
-              </MobileNavButton>
-
-
-              <MobileNavButton
-                onClick={() =>
-                  scrollTo("contacto")
-                }
-              >
+              <MobileNavButton onClick={() => scrollTo("contacto")}>
                 Contacto
               </MobileNavButton>
-
             </nav>
-
 
             <div
               className="
@@ -529,7 +445,6 @@ function LandingPage({
                 pt-4
               "
             >
-
               <button
                 type="button"
                 onClick={() => {
@@ -554,7 +469,6 @@ function LandingPage({
               >
                 Iniciar sesión
               </button>
-
 
               <button
                 type="button"
@@ -581,20 +495,14 @@ function LandingPage({
                 "
               >
                 Registrarse
-
-                <ArrowRight
-                  size={18}
-                />
+                <ArrowRight size={18} />
               </button>
-
             </div>
-
           </div>
         )}
 
-
         {/* ===============================================
-            TEXTO HERO
+            TEXTO PRINCIPAL
         ================================================ */}
 
         <div
@@ -620,7 +528,6 @@ function LandingPage({
             lg:pt-12
           "
         >
-
           <h1
             className="
               max-w-5xl
@@ -640,7 +547,6 @@ function LandingPage({
             "
           >
             Estética profesional
-
             <span
               className="
                 block
@@ -651,27 +557,26 @@ function LandingPage({
             </span>
           </h1>
 
-
           <p
-            className="
-              mt-6
+  className="
+    mt-6
+    max-w-2xl
 
-              max-w-2xl
+    text-base
+    font-medium
+    leading-7
 
-              text-base
-              font-medium
-              leading-7
+    text-[#687877]
 
-              text-[#687877]
+    [text-shadow:_-0.5px_-0.5px_0_#fff,_0.5px_-0.5px_0_#fff,_-0.5px_0.5px_0_#fff,_0.5px_0.5px_0_#fff]
 
-              sm:text-lg
-            "
-          >
-            Baños, cortes y cuidado
-            especializado para perros
-            y gatos.
-          </p>
-
+    sm:text-lg
+  "
+>
+  Baños, cortes y cuidado
+  especializado para perros
+  y gatos.
+</p>
 
           <button
             type="button"
@@ -706,17 +611,12 @@ function LandingPage({
             "
           >
             Agendar cita
-
-            <ArrowRight
-              size={21}
-            />
+            <ArrowRight size={21} />
           </button>
-
         </div>
 
-
         {/* ===============================================
-            LANDSCAPE
+            PAISAJE
         ================================================ */}
 
         <div
@@ -724,9 +624,11 @@ function LandingPage({
             pointer-events-none
 
             absolute
+
             bottom-24
             left-0
             right-0
+
             z-0
 
             h-[55%]
@@ -754,90 +656,108 @@ function LandingPage({
           />
         </div>
 
-
         {/* ===============================================
-            PERRO Y GATO INTERACTIVOS
+            PERRO Y GATO
         ================================================ */}
 
         <div
           className="
             absolute
 
-            bottom-[125px]
-            right-1/2
+            bottom-[115px]
+            right-[2%]
 
             z-20
 
             flex
-            translate-x-1/2
             items-end
-            justify-center
 
-            sm:right-[8%]
-            sm:translate-x-0
+            sm:bottom-[118px]
+            sm:right-[4%]
 
-            lg:right-[9%]
+            md:right-[5%]
+
+            lg:bottom-[125px]
+            lg:right-[6%]
+
+            xl:right-[7%]
+
+            2xl:right-[8%]
           "
         >
+          {/* =============================================
+              GATO
 
-          {/* GATO */}
+              Ahora abre ImageCard.
+          ============================================== */}
 
           <PetButton
             image={catImage}
             alt="Gato de Can Wash"
-            label="Registrar mi mascota"
-            onClick={onRegister}
+            label="Ver estética felina"
+            onClick={openCatCard}
             className="
               z-20
 
-              w-32
+              w-24
 
-              sm:w-40
-              md:w-48
-              lg:w-52
-              xl:w-60
+              sm:w-28
+              md:w-32
+              lg:w-36
+              xl:w-40
             "
           />
 
+          {/* =============================================
+              PERRO
 
-          {/* PERRO */}
+              Ahora abre ImageCard.
+          ============================================== */}
 
           <PetButton
             image={dogImage}
             alt="Perro de Can Wash"
-            label="Agendar una cita"
-            onClick={onRegister}
+            label="Ver estética canina"
+            onClick={openDogCard}
             className="
-              -ml-7
+              z-10
 
-              w-36
+              -translate-x-[18px]
+              translate-y-[12px]
 
-              sm:-ml-8
-              sm:w-44
+              w-28
 
-              md:-ml-10
-              md:w-52
+              sm:-translate-x-[22px]
+              sm:translate-y-[12px]
+              sm:w-32
 
-              lg:w-60
+              md:-translate-x-[26px]
+              md:translate-y-[16px]
+              md:w-36
 
-              xl:w-68
+              lg:-translate-x-[34px]
+              lg:translate-y-[16px]
+              lg:w-40
+
+              xl:-translate-x-[55px]
+              xl:translate-y-[25px]
+              xl:w-44
             "
           />
-
         </div>
 
-
         {/* ===============================================
-            BARRA DE BENEFICIOS
-            DESAPARECE AL HACER SCROLL
+            BENEFICIOS
         ================================================ */}
 
         <div
           className={`
             absolute
+
             bottom-0
             left-0
             right-0
+
             z-30
 
             border-t
@@ -865,7 +785,6 @@ function LandingPage({
             }
           `}
         >
-
           <div
             className="
               mx-auto
@@ -885,48 +804,32 @@ function LandingPage({
               lg:px-8
             "
           >
-
             <Feature
-              icon={
-                <CalendarDays />
-              }
+              icon={<CalendarDays />}
               title="Agenda en línea"
               text="Reserva tu cita fácilmente"
             />
 
-
             <Feature
-              icon={
-                <PawPrint />
-              }
+              icon={<PawPrint />}
               title="Cuidado profesional"
               text="Personal capacitado"
             />
 
-
             <Feature
-              icon={
-                <ShieldCheck />
-              }
+              icon={<ShieldCheck />}
               title="Ambiente seguro"
               text="Higiene y bienestar"
             />
 
-
             <Feature
-              icon={
-                <Heart />
-              }
+              icon={<Heart />}
               title="Perros y gatos"
               text="Atención especializada"
             />
-
           </div>
-
         </div>
-
       </section>
-
 
       {/* =================================================
           SERVICIOS
@@ -942,20 +845,17 @@ function LandingPage({
           lg:px-12
         "
       >
-
         <div
           className="
             mx-auto
             max-w-7xl
           "
         >
-
           <SectionHeader
             label="NUESTROS SERVICIOS"
             title="Todo lo que necesita tu mascota"
             text="Servicios pensados para mantener a perros y gatos limpios, cómodos y saludables."
           />
-
 
           <div
             className="
@@ -968,39 +868,26 @@ function LandingPage({
               md:grid-cols-3
             "
           >
-
             <ServiceCard
-              icon={
-                <Bath />
-              }
+              icon={<Bath />}
               title="Baño"
               text="Limpieza profesional utilizando productos adecuados para cada mascota."
             />
 
-
             <ServiceCard
-              icon={
-                <Scissors />
-              }
+              icon={<Scissors />}
               title="Estética"
               text="Corte, cepillado y arreglo para mantener a tu mascota cómoda y con excelente apariencia."
             />
 
-
             <ServiceCard
-              icon={
-                <Heart />
-              }
+              icon={<Heart />}
               title="Cuidado"
               text="Atención enfocada en la comodidad, higiene y bienestar de perros y gatos."
             />
-
           </div>
-
         </div>
-
       </section>
-
 
       {/* =================================================
           NOSOTROS
@@ -1018,7 +905,6 @@ function LandingPage({
           lg:px-12
         "
       >
-
         <div
           className="
             mx-auto
@@ -1031,9 +917,7 @@ function LandingPage({
             lg:items-center
           "
         >
-
           <div>
-
             <span
               className="
                 text-xs
@@ -1045,7 +929,6 @@ function LandingPage({
             >
               SOBRE CAN WASH
             </span>
-
 
             <h2
               className="
@@ -1061,10 +944,8 @@ function LandingPage({
                 sm:text-5xl
               "
             >
-              Cuidamos a quienes forman
-              parte de tu familia.
+              Cuidamos a quienes forman parte de tu familia.
             </h2>
-
 
             <p
               className="
@@ -1078,13 +959,9 @@ function LandingPage({
                 text-[#687877]
               "
             >
-              Can Wash ofrece servicios
-              de estética canina y felina
-              con atención enfocada en la
-              higiene, comodidad y
-              bienestar de cada mascota.
+              Can Wash ofrece servicios de estética canina y felina con atención
+              enfocada en la higiene, comodidad y bienestar de cada mascota.
             </p>
-
 
             <button
               type="button"
@@ -1108,20 +985,16 @@ function LandingPage({
                 text-white
 
                 transition
+                duration-300
 
                 hover:-translate-y-0.5
                 hover:bg-[#106f6b]
               "
             >
               Crear cuenta
-
-              <ArrowRight
-                size={18}
-              />
+              <ArrowRight size={18} />
             </button>
-
           </div>
-
 
           <div
             className="
@@ -1130,147 +1003,16 @@ function LandingPage({
               gap-4
             "
           >
+            <InfoBox icon={<PawPrint />} title="Atención" />
 
-            <InfoBox
-              icon={
-                <PawPrint />
-              }
-              title="Atención"
-            />
+            <InfoBox icon={<Bath />} title="Higiene" />
 
+            <InfoBox icon={<Scissors />} title="Estética" />
 
-            <InfoBox
-              icon={
-                <Bath />
-              }
-              title="Higiene"
-            />
-
-
-            <InfoBox
-              icon={
-                <Scissors />
-              }
-              title="Estética"
-            />
-
-
-            <InfoBox
-              icon={
-                <Heart />
-              }
-              title="Bienestar"
-            />
-
+            <InfoBox icon={<Heart />} title="Bienestar" />
           </div>
-
         </div>
-
       </section>
-
-
-      {/* =================================================
-          GALERÍA
-      ================================================== */}
-
-      <section
-        id="galeria"
-        className="
-          px-5
-          py-24
-
-          sm:px-8
-          lg:px-12
-        "
-      >
-
-        <div
-          className="
-            mx-auto
-            max-w-7xl
-          "
-        >
-
-          <SectionHeader
-            label="GALERÍA"
-            title="Conoce Can Wash"
-            text="Próximamente podrás conocer algunos de nuestros trabajos y clientes."
-          />
-
-
-          <div
-            className="
-              mt-12
-
-              grid
-              grid-cols-2
-              gap-4
-
-              md:grid-cols-4
-            "
-          >
-
-            {[1, 2, 3, 4].map(
-              (item) => (
-                <div
-                  key={item}
-                  className="
-                    group
-
-                    aspect-square
-
-                    overflow-hidden
-
-                    rounded-3xl
-
-                    bg-gradient-to-br
-                    from-[#dcefed]
-                    to-[#f6ead8]
-
-                    p-5
-
-                    transition
-
-                    hover:-translate-y-1
-                    hover:shadow-xl
-                  "
-                >
-
-                  <div
-                    className="
-                      grid
-                      h-full
-                      place-items-center
-
-                      rounded-2xl
-
-                      border
-                      border-white/60
-
-                      bg-white/30
-
-                      text-[#14847f]
-
-                      transition
-
-                      group-hover:scale-105
-                    "
-                  >
-                    <PawPrint
-                      size={45}
-                    />
-                  </div>
-
-                </div>
-              )
-            )}
-
-          </div>
-
-        </div>
-
-      </section>
-
 
       {/* =================================================
           CONTACTO
@@ -1280,13 +1022,12 @@ function LandingPage({
         id="contacto"
         className="
           px-5
-          pb-16
+          py-24
 
           sm:px-8
           lg:px-12
         "
       >
-
         <div
           className="
             relative
@@ -1309,7 +1050,6 @@ function LandingPage({
             sm:px-10
           "
         >
-
           <PawPrint
             size={45}
             className="
@@ -1317,7 +1057,6 @@ function LandingPage({
               text-[#8bc8c2]
             "
           />
-
 
           <h2
             className="
@@ -1333,10 +1072,8 @@ function LandingPage({
               sm:text-5xl
             "
           >
-            Dale a tu mascota el cuidado
-            que merece.
+            Dale a tu mascota el cuidado que merece.
           </h2>
-
 
           <p
             className="
@@ -1350,11 +1087,9 @@ function LandingPage({
               text-white/70
             "
           >
-            Crea tu cuenta, registra a tu
-            mascota y administra sus
-            servicios desde Can Wash.
+            Crea tu cuenta, registra a tu mascota y administra sus servicios
+            desde Can Wash.
           </p>
-
 
           <button
             type="button"
@@ -1380,18 +1115,15 @@ function LandingPage({
               shadow-lg
 
               transition
+              duration-300
 
               hover:-translate-y-1
               hover:bg-[#1b918b]
             "
           >
             Crear cuenta
-
-            <ArrowRight
-              size={20}
-            />
+            <ArrowRight size={20} />
           </button>
-
 
           <PawPrint
             size={180}
@@ -1407,11 +1139,8 @@ function LandingPage({
               text-white/5
             "
           />
-
         </div>
-
       </section>
-
 
       {/* =================================================
           FOOTER
@@ -1428,7 +1157,6 @@ function LandingPage({
           sm:px-8
         "
       >
-
         <div
           className="
             mx-auto
@@ -1446,7 +1174,6 @@ function LandingPage({
             sm:justify-between
           "
         >
-
           <div
             className="
               flex
@@ -1463,15 +1190,10 @@ function LandingPage({
                 text-[#14847f]
               "
             />
-
             Can Wash
           </div>
 
-
-          <span>
-            Estética canina y felina
-          </span>
-
+          <span>Estética canina y felina</span>
 
           <button
             type="button"
@@ -1488,27 +1210,34 @@ function LandingPage({
           >
             Iniciar sesión
           </button>
-
         </div>
-
       </footer>
 
+      {/* =================================================
+          IMAGE CARD
+
+          CAT:
+          catImage x3
+
+          DOG:
+          dogImage x3
+      ================================================== */}
+
+      <ImageCard
+        isOpen={selectedPet !== null}
+        onClose={closePetCard}
+        title={modalTitle}
+        images={modalImages}
+      />
     </div>
   );
 }
 
-
 /* =========================================================
-   PERRO / GATO
+   PERRO / GATO INTERACTIVO
 ========================================================= */
 
-function PetButton({
-  image,
-  alt,
-  label,
-  onClick,
-  className = "",
-}) {
+function PetButton({ image, alt, label, onClick, className = "" }) {
   return (
     <button
       type="button"
@@ -1530,7 +1259,6 @@ function PetButton({
         ${className}
       `}
     >
-
       <img
         src={image}
         alt={alt}
@@ -1545,76 +1273,26 @@ function PetButton({
           duration-300
           ease-out
 
-          group-hover:-translate-y-3
-          group-hover:scale-[1.05]
+          group-hover:-translate-y-1
+          group-hover:scale-[1.04]
           group-hover:brightness-105
 
-          group-hover:drop-shadow-[0_8px_8px_rgba(20,132,127,0.45)]
+          group-hover:drop-shadow-[0_0_9px_rgba(20,132,127,0.65)]
 
-          group-focus-visible:-translate-y-3
-          group-focus-visible:scale-[1.05]
-          group-focus-visible:drop-shadow-[0_8px_8px_rgba(20,132,127,0.55)]
+          group-focus-visible:-translate-y-1
+          group-focus-visible:scale-[1.04]
+          group-focus-visible:drop-shadow-[0_0_9px_rgba(20,132,127,0.75)]
         "
       />
-
-
-      <span
-        className="
-          pointer-events-none
-
-          absolute
-          -bottom-5
-          left-1/2
-          z-30
-
-          -translate-x-1/2
-          translate-y-2
-
-          whitespace-nowrap
-
-          rounded-full
-
-          bg-[#153b39]/95
-
-          px-4
-          py-2
-
-          text-xs
-          font-semibold
-          text-white
-
-          opacity-0
-
-          shadow-xl
-
-          backdrop-blur-sm
-
-          transition-all
-          duration-300
-
-          group-hover:translate-y-0
-          group-hover:opacity-100
-
-          group-focus-visible:translate-y-0
-          group-focus-visible:opacity-100
-        "
-      >
-        {label}
-      </span>
-
     </button>
   );
 }
-
 
 /* =========================================================
    NAV DESKTOP
 ========================================================= */
 
-function NavButton({
-  onClick,
-  children,
-}) {
+function NavButton({ onClick, children }) {
   return (
     <button
       type="button"
@@ -1652,15 +1330,11 @@ function NavButton({
   );
 }
 
-
 /* =========================================================
    NAV MÓVIL
 ========================================================= */
 
-function MobileNavButton({
-  onClick,
-  children,
-}) {
+function MobileNavButton({ onClick, children }) {
   return (
     <button
       type="button"
@@ -1690,16 +1364,11 @@ function MobileNavButton({
   );
 }
 
-
 /* =========================================================
    BENEFICIO
 ========================================================= */
 
-function Feature({
-  icon,
-  title,
-  text,
-}) {
+function Feature({ icon, title, text }) {
   return (
     <div
       className="
@@ -1714,7 +1383,6 @@ function Feature({
         sm:px-4
       "
     >
-
       <div
         className="
           shrink-0
@@ -1724,9 +1392,7 @@ function Feature({
         {icon}
       </div>
 
-
       <div className="min-w-0">
-
         <strong
           className="
             block
@@ -1740,7 +1406,6 @@ function Feature({
           {title}
         </strong>
 
-
         <span
           className="
             hidden
@@ -1753,32 +1418,25 @@ function Feature({
         >
           {text}
         </span>
-
       </div>
-
     </div>
   );
 }
-
 
 /* =========================================================
    ENCABEZADO
 ========================================================= */
 
-function SectionHeader({
-  label,
-  title,
-  text,
-}) {
+function SectionHeader({ label, title, text }) {
   return (
     <div
       className="
         mx-auto
         max-w-3xl
+
         text-center
       "
     >
-
       <span
         className="
           text-xs
@@ -1790,7 +1448,6 @@ function SectionHeader({
       >
         {label}
       </span>
-
 
       <h2
         className="
@@ -1809,7 +1466,6 @@ function SectionHeader({
         {title}
       </h2>
 
-
       <p
         className="
           mx-auto
@@ -1826,21 +1482,15 @@ function SectionHeader({
       >
         {text}
       </p>
-
     </div>
   );
 }
-
 
 /* =========================================================
    SERVICIO
 ========================================================= */
 
-function ServiceCard({
-  icon,
-  title,
-  text,
-}) {
+function ServiceCard({ icon, title, text }) {
   return (
     <article
       className="
@@ -1867,7 +1517,6 @@ function ServiceCard({
         hover:shadow-[#153b39]/5
       "
     >
-
       <div
         className="
           grid
@@ -1891,7 +1540,6 @@ function ServiceCard({
         {icon}
       </div>
 
-
       <h3
         className="
           mt-6
@@ -1905,7 +1553,6 @@ function ServiceCard({
         {title}
       </h3>
 
-
       <p
         className="
           mt-3
@@ -1918,20 +1565,15 @@ function ServiceCard({
       >
         {text}
       </p>
-
     </article>
   );
 }
-
 
 /* =========================================================
    INFO BOX
 ========================================================= */
 
-function InfoBox({
-  icon,
-  title,
-}) {
+function InfoBox({ icon, title }) {
   return (
     <div
       className="
@@ -1955,7 +1597,6 @@ function InfoBox({
         hover:bg-white/90
       "
     >
-
       <div
         className="
           mx-auto
@@ -1981,7 +1622,6 @@ function InfoBox({
         {icon}
       </div>
 
-
       <strong
         className="
           mt-4
@@ -1994,10 +1634,8 @@ function InfoBox({
       >
         {title}
       </strong>
-
     </div>
   );
 }
-
 
 export default LandingPage;
