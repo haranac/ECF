@@ -1,0 +1,14 @@
+[1mdiff --git a/src/components/locationMap.jsx b/src/components/locationMap.jsx[m
+[1mindex 2b92c04..aa50cdd 100644[m
+[1m--- a/src/components/locationMap.jsx[m
+[1m+++ b/src/components/locationMap.jsx[m
+[36m@@ -535,7 +535,8 @@[m [mfunction LocationMap() {[m
+             }[m
+ [m
+             className="[m
+[31m-              mt-6[m
+[32m+[m[32m              isolate[m
+[32m+[m[32m            mt-6[m
+               h-[350px][m
+               w-full[m
+               overflow-hidden[m

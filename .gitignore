@@ -10,10 +10,28 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build
+coverage
+.vite-temp
+.npm-cache
+.vercel
 *.local
 .env
 .env.local
 .env.production
+.env.development
+.env.test
+.env.*.local
+
+# Supabase local files
+supabase/.temp
+supabase/.branches
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+Thumbs.db
 
 # Editor directories and files
 .vscode/*
