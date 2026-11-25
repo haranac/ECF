@@ -33,6 +33,20 @@ function LandingPage({ onLogin, onRegister }) {
   // =====================================================
   // OCULTAR BENEFICIOS AL HACER SCROLL
   // =====================================================
+  const dogImages = [
+  dogImage,
+  "https://scontent.fisj3-3.fna.fbcdn.net/v/t39.30808-6/683534741_122164980452658941_1982701379436135384_n.jpg?stp=dst-jpg_tt6&cstp=mx896x896&ctp=s896x896&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=J0JWtY5oHzcQ7kNvwFYXr7U&_nc_oc=AdpcGDlRCEV-UU3FlJ5h76bWaVFA1tsUG01zSej9Pi52KiykaZcKLaVeaECGoothz8Q&_nc_zt=23&_nc_ht=scontent.fisj3-3.fna&_nc_gid=MsY5FCUJB1F1Bqx5sbv7Mw&_nc_ss=7b3a8&oh=00_AQQL3TvfuT9US3xagUtngpCR5-NLiPRJ0ucSAd5Nxrf_jw&oe=6B0D331C",
+  "https://scontent.fisj3-3.fna.fbcdn.net/v/t39.30808-6/809108166_122173878548658941_4132138707796472418_n.jpg?stp=dst-jpg_tt6&cstp=mx896x1028&ctp=s896x1028&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=fYOY4UaZO6wQ7kNvwHP4WWn&_nc_oc=AdqVMfX9pkBXvyBNuBLhSWvZV5Td4SHUmZazbmQ18oPsBJ7jjJa5dIYFSt6A5wSy2uI&_nc_zt=23&_nc_ht=scontent.fisj3-3.fna&_nc_gid=1bkR6rcANdBiTWpAduvdfg&_nc_ss=7b3a8&oh=00_AQS3aZyL1uRoRgkGtexvD_LCreezWS7rIdwh2emgYuABlQ&oe=6B0D48A0",
+  "https://scontent.fcjs3-2.fna.fbcdn.net/v/t39.30808-6/809736296_122173878404658941_969848722791823603_n.jpg?stp=dst-jpg_tt6&cstp=mx896x1023&ctp=s896x1023&_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=7X3ar4dm3QsQ7kNvwGhbC-Y&_nc_oc=AdptrQgEp-_Cs66-cl3BVP-AYh4_v1QDVeXSrPftggGcqp4qngGFNtXsZRTc-wBHu8E&_nc_zt=23&_nc_ht=scontent.fcjs3-2.fna&_nc_gid=uED0BS-Gw6k__kACRauA8g&_nc_ss=7b3a8&oh=00_AQRMmN8lNArFVK4okhYS8jp4454QlXdoO9YMGTbdNu4u-A&oe=6B0D5E7E",
+];
+
+const catImages = [
+  catImage,
+  "https://scontent.fcjs3-1.fna.fbcdn.net/v/t39.30808-6/753954187_122170573130658941_1396451529086139109_n.jpg?stp=dst-jpg_tt6&cstp=mx896x1029&ctp=s896x1029&_nc_cat=111&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=vUoXs8e6AVEQ7kNvwEQkROi&_nc_oc=AdrFWYHzsTUG0w-2pgVhMIWNlK4YVtPZoaZwoStrq7nBXk8uSz1EjnxlHH_RnpM5GGY&_nc_zt=23&_nc_ht=scontent.fcjs3-1.fna&_nc_gid=d6-0ixLIpPtjquY5j-Amew&_nc_ss=7b3a8&oh=00_AQQDJGPIXTIESbMQASmWWzUunURFXpcCxCM6AXu0w1RXLA&oe=6B0D3B34",
+  "https://scontent.fcjs3-1.fna.fbcdn.net/v/t39.30808-6/677009323_122164453838658941_5294832156778632527_n.jpg?stp=dst-jpg_tt6&cstp=mx896x1195&ctp=s896x1195&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=j4-jsgfWYqcQ7kNvwG6Qm09&_nc_oc=Adqg5KS3ctTDDdmVvfMYhd6VlAK4eolggAxg3XDnM2QtNHdmg5xUKkxxcDoQ9xr24tc&_nc_zt=23&_nc_ht=scontent.fcjs3-1.fna&_nc_gid=VDc264RcqLx0Nj3WBSvG0Q&_nc_ss=7b3a8&oh=00_AQSlwuV6USzGQPkb5U023-Zbk8x2W3APryxteAa30bE0eA&oe=6B0D3665",
+  "https://scontent.fcjs3-2.fna.fbcdn.net/v/t39.30808-6/682426701_122164829948658941_3112271614852318994_n.jpg?stp=dst-jpg_tt6&cstp=mx896x1195&ctp=s896x1195&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=3SG5TSfvPPwQ7kNvwFGa-kH&_nc_oc=AdpwSp3DkEouEqWM9ZsxzP4daYrd9BPslTR77wlr_zNNRKVnuVLS8F2-vGmHEXz4ETM&_nc_zt=23&_nc_ht=scontent.fcjs3-2.fna&_nc_gid=BPTFKvI7QsDbtiXJjoYkiQ&_nc_ss=7b3a8&oh=00_AQTUZKWZsln3xRlFSxLec2Lb8hztPyp4AxxJLwxbOwe29g&oe=6B0D3984",
+];
+// Imágenes del Facebook
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,10 +113,11 @@ function LandingPage({ onLogin, onRegister }) {
 
   const modalImages =
     selectedPet === "cat"
-      ? [catImage, catImage, catImage]
+      ? catImages
       : selectedPet === "dog"
-        ? [dogImage, dogImage, dogImage]
+        ? dogImages
         : [];
+}
 
   // =====================================================
   // INTERFAZ
